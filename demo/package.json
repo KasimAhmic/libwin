@@ -1,0 +1,17 @@
+{
+  "name": "@libwin/demo",
+  "type": "module",
+  "scripts": {
+    "start": "tsx main.ts"
+  },
+  "dependencies": {
+    "@libwin/common": "file:../packages/common/dist",
+    "@libwin/user32": "file:../packages/user32/dist",
+    "@libwin/kernel32": "file:../packages/kernel32/dist",
+    "@libwin/gdi32": "file:../packages/gdi32/dist",
+    "@libwin/comctl32": "file:../packages/comctl32/dist",
+    "@types/node": "^24.3.0",
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.2"
+  }
+}

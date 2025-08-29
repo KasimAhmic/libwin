@@ -1,0 +1,64 @@
+{
+  "name": "@libwin/libwin",
+  "version": "1.0.0",
+  "description": "Native Node.js bindings for the Win32 API",
+  "workspaces": [
+    "packages/common",
+    "packages/comctl32",
+    "packages/gdi32",
+    "packages/kernel32",
+    "packages/user32"
+  ],
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "configure": "node-gyp configure",
+    "start": "tsx scripts/scratch-pad.ts",
+    "clean": "npm run clean -ws",
+    "build": "npm run build -ws",
+    "rebuild": "npm run rebuild -ws",
+    "configure:user32": "npm run configure --workspace=packages/user32",
+    "configure:kernel32": "npm run configure --workspace=packages/kernel32",
+    "configure:gdi32": "npm run configure --workspace=packages/gdi32",
+    "configure:comctl32": "npm run configure --workspace=packages/comctl32",
+    "build:user32": "npm run build --workspace=packages/user32",
+    "build:kernel32": "npm run build --workspace=packages/kernel32",
+    "build:gdi32": "npm run build --workspace=packages/gdi32",
+    "build:comctl32": "npm run build --workspace=packages/comctl32",
+    "rebuild:user32": "npm run rebuild --workspace=packages/user32",
+    "rebuild:kernel32": "npm run rebuild --workspace=packages/kernel32",
+    "rebuild:gdi32": "npm run rebuild --workspace=packages/gdi32",
+    "rebuild:comctl32": "npm run rebuild --workspace=packages/comctl32",
+    "test": "vitest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KasimAhmic/libwin.git"
+  },
+  "keywords": [
+    "nodejs",
+    "native",
+    "addon",
+    "win32",
+    "c++"
+  ],
+  "author": "Kasim Ahmic",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/KasimAhmic/libwin/issues"
+  },
+  "homepage": "https://github.com/KasimAhmic/libwin#readme",
+  "devDependencies": {
+    "@rollup/plugin-typescript": "^12.1.4",
+    "@trivago/prettier-plugin-sort-imports": "^5.2.2",
+    "@types/node": "^24.3.0",
+    "@vitest/coverage-v8": "^3.2.4",
+    "node-addon-api": "^8.5.0",
+    "node-api-headers": "^1.5.0",
+    "prettier": "^3.6.2",
+    "rollup": "^4.49.0",
+    "tslib": "^2.8.1",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
+  }
+}

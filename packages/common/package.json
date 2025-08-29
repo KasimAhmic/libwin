@@ -1,0 +1,8 @@
+{
+  "name": "@libwin/common",
+  "type": "module",
+  "scripts": {
+    "build": "exit 0",
+    "rebuild": "exit 0"
+  }
+}
