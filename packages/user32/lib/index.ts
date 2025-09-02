@@ -2,6 +2,14 @@ import { createRequire } from 'node:module';
 
 const require = createRequire(import.meta.url);
 
+export * from './class-styles.js';
+export * from './window-styles.js';
+export * from './extended-window-styles.js';
+export * from './message-box.js';
+export * from './message.js';
+
+export const CW_USEDEFAULT = 0x80000000;
+
 // TODO: Not all functions are implemented nor will be. Just did this to make testing easier as I develop the addon.
 export const {
   ActivateKeyboardLayout,
@@ -1043,111 +1051,6 @@ export const {
   wvsprintfA,
   wvsprintfW,
 } = require('./user32.node');
-
-// Message Box Constants
-export const MB_OK = 0x00000000;
-export const MB_OKCANCEL = 0x00000001;
-export const MB_ABORTRETRYIGNORE = 0x00000002;
-export const MB_YESNOCANCEL = 0x00000003;
-export const MB_YESNO = 0x00000004;
-export const MB_RETRYCANCEL = 0x00000005;
-export const MB_CANCELTRYCONTINUE = 0x00000006;
-export const MB_HELP = 0x00004000;
-
-export const MB_ICONSTOP = 0x00000010;
-export const MB_ICONHAND = 0x00000010;
-export const MB_ICONERROR = 0x00000010;
-export const MB_ICONQUESTION = 0x00000020;
-export const MB_ICONWARNING = 0x00000030;
-export const MB_ICONEXCLAMATION = 0x00000030;
-export const MB_ICONASTERISK = 0x00000040;
-export const MB_ICONINFORMATION = 0x00000040;
-export const MB_USERICON = 0x00000080;
-
-export const MB_DEFBUTTON1 = 0x00000000;
-export const MB_DEFBUTTON2 = 0x00000100;
-export const MB_DEFBUTTON3 = 0x00000200;
-export const MB_DEFBUTTON4 = 0x00000300;
-
-export const MB_APPLMODAL = 0x00000000;
-export const MB_SYSTEMMODAL = 0x00001000;
-export const MB_TASKMODAL = 0x00002000;
-
-export const MB_SETFOREGROUND = 0x00010000;
-export const MB_DEFAULT_DESKTOP_ONLY = 0x00020000;
-export const MB_TOPMOST = 0x00040000;
-export const MB_RIGHT = 0x00080000;
-export const MB_RTLREADING = 0x00100000;
-export const MB_SERVICE_NOTIFICATION = 0x00200000;
-
-export const IDOK = 1;
-export const IDCANCEL = 2;
-export const IDABORT = 3;
-export const IDRETRY = 4;
-export const IDIGNORE = 5;
-export const IDYES = 6;
-export const IDNO = 7;
-export const IDTRYAGAIN = 10;
-export const IDCONTINUE = 11;
-
-// Window Style Constants
-export const WS_OVERLAPPED = 0x00000000;
-export const WS_POPUP = 0x80000000;
-export const WS_CHILD = 0x40000000;
-export const WS_MINIMIZE = 0x20000000;
-export const WS_VISIBLE = 0x10000000;
-export const WS_DISABLED = 0x08000000;
-export const WS_CLIPSIBLINGS = 0x04000000;
-export const WS_CLIPCHILDREN = 0x02000000;
-export const WS_MAXIMIZE = 0x01000000;
-export const WS_CAPTION = 0x00c00000;
-export const WS_BORDER = 0x00800000;
-export const WS_DLGFRAME = 0x00400000;
-export const WS_VSCROLL = 0x00200000;
-export const WS_HSCROLL = 0x00100000;
-export const WS_SYSMENU = 0x00080000;
-export const WS_THICKFRAME = 0x00040000;
-export const WS_GROUP = 0x00020000;
-export const WS_TABSTOP = 0x00010000;
-export const WS_MINIMIZEBOX = 0x00020000;
-export const WS_MAXIMIZEBOX = 0x00010000;
-export const WS_TILED = WS_OVERLAPPED;
-export const WS_ICONIC = WS_MINIMIZE;
-export const WS_SIZEBOX = WS_THICKFRAME;
-export const WS_OVERLAPPEDWINDOW =
-  WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX;
-export const WS_POPUPWINDOW = WS_POPUP | WS_BORDER | WS_SYSMENU;
-export const WS_CHILDWINDOW = WS_CHILD;
-export const WS_TILEDWINDOW = WS_OVERLAPPEDWINDOW;
-
-// Window Extended Style Constants
-export const WS_EX_DLGMODALFRAME = 0x00000001;
-export const WS_EX_NOPARENTNOTIFY = 0x00000004;
-export const WS_EX_TOPMOST = 0x00000008;
-export const WS_EX_ACCEPTFILES = 0x00000010;
-export const WS_EX_TRANSPARENT = 0x00000020;
-export const WS_EX_MDICHILD = 0x00000040;
-export const WS_EX_TOOLWINDOW = 0x00000080;
-export const WS_EX_WINDOWEDGE = 0x00000100;
-export const WS_EX_CLIENTEDGE = 0x00000200;
-export const WS_EX_CONTEXTHELP = 0x00000400;
-export const WS_EX_RIGHT = 0x00001000;
-export const WS_EX_LEFT = 0x00000000;
-export const WS_EX_RTLREADING = 0x00002000;
-export const WS_EX_LTRREADING = 0x00000000;
-export const WS_EX_LEFTSCROLLBAR = 0x00004000;
-export const WS_EX_RIGHTSCROLLBAR = 0x00000000;
-export const WS_EX_CONTROLPARENT = 0x00010000;
-export const WS_EX_STATICEDGE = 0x00020000;
-export const WS_EX_APPWINDOW = 0x00040000;
-export const WS_EX_OVERLAPPEDWINDOW = WS_EX_WINDOWEDGE | WS_EX_CLIENTEDGE;
-export const WS_EX_PALETTEWINDOW = WS_EX_WINDOWEDGE | WS_EX_TOOLWINDOW | WS_EX_TOPMOST;
-export const WS_EX_LAYERED = 0x0008000;
-export const WS_EX_NOINHERITLAYOUT = 0x00100000;
-export const WS_EX_NOREDIRECTIONBITMAP = 0x00200000;
-export const WS_EX_LAYOUTRTL = 0x00400000;
-export const WS_EX_COMPOSITED = 0x02000000;
-export const WS_EX_NOACTIVATE = 0x08000000;
 
 export type HELPINFO = {
   iContextType: number;

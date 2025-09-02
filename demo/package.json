@@ -2,7 +2,7 @@
   "name": "@libwin/demo",
   "type": "module",
   "scripts": {
-    "start": "tsx main.ts"
+    "start:win32": "tsx win32/main.ts"
   },
   "dependencies": {
     "@libwin/common": "file:../packages/common/dist",

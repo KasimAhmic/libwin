@@ -2,6 +2,7 @@
   "name": "@libwin/common",
   "type": "module",
   "scripts": {
+    "configure": "exit 0",
     "build": "exit 0",
     "rebuild": "exit 0"
   }

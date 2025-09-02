@@ -1,8 +1,26 @@
 #include "user32.hpp"
 
-Napi::Value User32::AppendMenuA(const Napi::CallbackInfo &info) {};
+Napi::Value User32::AppendMenuA(const Napi::CallbackInfo &info) {
+  const QB_ARG(hMenu, qb::ReadRequiredHandle<HMENU>(info, 0));
+  const QB_ARG(uFlags, qb::ReadRequiredUint32(info, 1));
+  const QB_ARG(uIDNewItem, qb::ReadRequiredUint32(info, 2));
+  const QB_ARG(lpNewItem, qb::ReadOptionalString(info, 3));
 
-Napi::Value User32::AppendMenuW(const Napi::CallbackInfo &info) {};
+  const BOOL result = ::AppendMenuA(hMenu, uFlags, uIDNewItem, lpNewItem.has_value() ? lpNewItem->c_str() : nullptr);
+
+  return Napi::Boolean::New(info.Env(), result);
+};
+
+Napi::Value User32::AppendMenuW(const Napi::CallbackInfo &info) {
+  const QB_ARG(hMenu, qb::ReadRequiredHandle<HMENU>(info, 0));
+  const QB_ARG(uFlags, qb::ReadRequiredUint32(info, 1));
+  const QB_ARG(uIDNewItem, qb::ReadRequiredUint32(info, 2));
+  const QB_ARG(lpNewItem, qb::ReadOptionalWideString(info, 3));
+
+  const BOOL result = ::AppendMenuW(hMenu, uFlags, uIDNewItem, lpNewItem.has_value() ? lpNewItem->c_str() : nullptr);
+
+  return Napi::Boolean::New(info.Env(), result);
+};
 
 Napi::Value User32::CalcMenuBar(const Napi::CallbackInfo &info) {};
 
@@ -14,20 +32,18 @@ Napi::Value User32::CheckMenuItem(const Napi::CallbackInfo &info) {};
 
 Napi::Value User32::CheckMenuRadioItem(const Napi::CallbackInfo &info) {};
 
-Napi::Value User32::CreateMenu(const Napi::CallbackInfo &info)
-{
+Napi::Value User32::CreateMenu(const Napi::CallbackInfo &info) {
   const HMENU hMenu = ::CreateMenu();
 
-  return HandleToBigInt(info, hMenu);
+  return qb::HandleToBigInt(info, hMenu);
 };
 
 Napi::Value User32::CreatePopupMenu(const Napi::CallbackInfo &info) {};
 
 Napi::Value User32::DeleteMenu(const Napi::CallbackInfo &info) {};
 
-Napi::Value User32::DestroyMenu(const Napi::CallbackInfo &info)
-{
-  const ARG(hMenu, ReadArgAsHandle<HMENU>(info, 0));
+Napi::Value User32::DestroyMenu(const Napi::CallbackInfo &info) {
+  const QB_ARG(hMenu, qb::ReadRequiredHandle<HMENU>(info, 0));
 
   const BOOL result = ::DestroyMenu(hMenu);
 
@@ -42,13 +58,12 @@ Napi::Value User32::EnableMenuItem(const Napi::CallbackInfo &info) {};
 
 Napi::Value User32::EndMenu(const Napi::CallbackInfo &info) {};
 
-Napi::Value User32::GetMenu(const Napi::CallbackInfo &info)
-{
-  const ARG(hWnd, ReadArgAsHandle<HWND>(info, 0));
+Napi::Value User32::GetMenu(const Napi::CallbackInfo &info) {
+  const QB_ARG(hWnd, qb::ReadRequiredHandle<HWND>(info, 0));
 
   const HMENU hMenu = ::GetMenu(hWnd);
 
-  return HandleToBigInt(info, hMenu);
+  return qb::HandleToBigInt(info, hMenu);
 };
 
 Napi::Value User32::GetMenuBarInfo(const Napi::CallbackInfo &info) {};
@@ -115,7 +130,14 @@ Napi::Value User32::PaintMenuBar(const Napi::CallbackInfo &info) {};
 
 Napi::Value User32::RemoveMenu(const Napi::CallbackInfo &info) {};
 
-Napi::Value User32::SetMenu(const Napi::CallbackInfo &info) {};
+Napi::Value User32::SetMenu(const Napi::CallbackInfo &info) {
+  const QB_ARG(hWnd, qb::ReadRequiredHandle<HWND>(info, 0));
+  const QB_ARG(hMenu, qb::ReadOptionalHandle<HMENU>(info, 1));
+
+  const BOOL result = ::SetMenu(hWnd, hMenu.has_value() ? hMenu.value() : nullptr);
+
+  return Napi::Boolean::New(info.Env(), result);
+};
 
 Napi::Value User32::SetMenuContextHelpId(const Napi::CallbackInfo &info) {};
 

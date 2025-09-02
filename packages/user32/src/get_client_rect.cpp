@@ -1,11 +1,10 @@
 #include "user32.hpp"
 
-Napi::Value User32::GetClientRect(const Napi::CallbackInfo &info)
-{
+Napi::Value User32::GetClientRect(const Napi::CallbackInfo &info) {
   const Napi::Env env = info.Env();
 
-  const ARG(hWnd, ReadArgAsHandle<HWND>(info, 0));
-  const ARG(lpRect, ReadArgAsObject(info, 1));
+  const QB_ARG(hWnd, qb::ReadRequiredHandle<HWND>(info, 0));
+  const QB_ARG(lpRect, qb::ReadRequiredObject(info, 1));
 
   auto rect = RECT{};
 

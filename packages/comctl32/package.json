@@ -8,8 +8,9 @@
   "scripts": {
     "configure": "node-gyp configure",
     "clean": "node-gyp clean",
-    "build": "node-gyp build -j max && tsc -p ./tsconfig.json && rollup -c",
-    "rebuild": "node-gyp rebuild -j max",
+    "build:lib": "tsc -p ./tsconfig.json && rollup -c",
+    "build": "node-gyp build -j max && npm run build:lib",
+    "rebuild": "node-gyp rebuild -j max && npm run build:lib",
     "test": "vitest"
   },
   "repository": {

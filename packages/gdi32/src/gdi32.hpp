@@ -3,14 +3,10 @@
 #include <napi.h>
 #include <windows.h>
 
-#include "../../common/include/macros.hpp"
-#include "../../common/include/common.hpp"
-#include "../../common/include/arguments.hpp"
-#include "../../common/include/properties.hpp"
 #include "../../common/include/callback_handler.hpp"
+#include "../../common/include/quickbind.hpp"
 
-namespace Gdi32
-{
+namespace Gdi32 {
   Napi::Value AbortDoc(const Napi::CallbackInfo &info);
   Napi::Value AbortPath(const Napi::CallbackInfo &info);
   Napi::Value AddFontMemResourceEx(const Napi::CallbackInfo &info);
@@ -1004,4 +1000,4 @@ namespace Gdi32
   Napi::Value pGdiSharedMemory(const Napi::CallbackInfo &info);
   Napi::Value pldcGet(const Napi::CallbackInfo &info);
   Napi::Value vSetPldc(const Napi::CallbackInfo &info);
-}
+} // namespace Gdi32

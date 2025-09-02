@@ -12,8 +12,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "configure": "node-gyp configure",
-    "start": "tsx scripts/scratch-pad.ts",
+    "configure": "npm run configure -ws",
     "clean": "npm run clean -ws",
     "build": "npm run build -ws",
     "rebuild": "npm run rebuild -ws",

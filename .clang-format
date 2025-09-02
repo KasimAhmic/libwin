@@ -1,0 +1,11 @@
+BracketAlignmentStyle: Align
+IndentWidth: 2
+UseTab: Never
+TabWidth: 2
+ColumnLimit: 120
+PenaltyBreakBeforeFirstCallParameter: 1
+PenaltyBreakAssignment: 1000000
+BinPackArguments: false
+BinPackParameters: false
+AllowAllArgumentsOnNextLine: false
+NamespaceIndentation: All

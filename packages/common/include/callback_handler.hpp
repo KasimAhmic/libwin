@@ -3,29 +3,23 @@
 #include <napi.h>
 #include <windows.h>
 
-class CallbackHandler
-{
+template <typename T> class CallbackHandler {
 public:
-    explicit CallbackHandler(const Napi::Env env, const Napi::Function &fn) : callback(Napi::Persistent(fn)), env(env) {}
+  explicit CallbackHandler(const Napi::Env env, const Napi::Function &fn) : callback(Napi::Persistent(fn)), env(env) {}
 
-    void Invoke(Napi::Value &arg) const
-    {
-        Napi::HandleScope scope(env);
-        this->callback.Call({arg});
-    }
+  T Invoke(Napi::Value &arg) const {
+    Napi::HandleScope scope(env);
+    return this->callback.Call({arg}).As<T>();
+  }
 
-    void Invoke(std::initializer_list<napi_value> values) const
-    {
-        Napi::HandleScope scope(env);
-        this->callback.Call(values);
-    }
+  T Invoke(std::initializer_list<napi_value> values) const {
+    Napi::HandleScope scope(env);
+    return this->callback.Call(values).As<T>();
+  }
 
-    Napi::Env GetEnv() const
-    {
-        return this->env;
-    }
+  Napi::Env GetEnv() const { return this->env; }
 
 private:
-    Napi::FunctionReference callback;
-    Napi::Env env;
+  Napi::FunctionReference callback;
+  Napi::Env env;
 };

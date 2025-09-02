@@ -3,14 +3,10 @@
 #include <napi.h>
 #include <windows.h>
 
-#include "../../common/include/macros.hpp"
-#include "../../common/include/common.hpp"
-#include "../../common/include/arguments.hpp"
-#include "../../common/include/properties.hpp"
 #include "../../common/include/callback_handler.hpp"
+#include "../../common/include/quickbind.hpp"
 
-namespace Kernel32
-{
+namespace Kernel32 {
   Napi::Value AcquireSRWLockExclusive(const Napi::CallbackInfo &info);
   Napi::Value AcquireSRWLockShared(const Napi::CallbackInfo &info);
   Napi::Value ActivateActCtx(const Napi::CallbackInfo &info);
@@ -1702,4 +1698,4 @@ namespace Kernel32
   Napi::Value uaw_wcsicmp(const Napi::CallbackInfo &info);
   Napi::Value uaw_wcslen(const Napi::CallbackInfo &info);
   Napi::Value uaw_wcsrchr(const Napi::CallbackInfo &info);
-}
+} // namespace Kernel32

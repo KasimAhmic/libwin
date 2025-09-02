@@ -1,6 +1,10 @@
 {
-  "[typescript][javascript][json][jsonc][jsonl]": {
+  "[typescript][javascript][json][jsonc][jsonl][markdown]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  },
+  "[c][cpp]": {
+    "editor.defaultFormatter": "ms-vscode.cpptools",
     "editor.formatOnSave": true
   },
   "files.associations": {
@@ -46,7 +50,9 @@
     "xtr1common": "cpp",
     "xutility": "cpp",
     "charconv": "cpp",
-    "variant": "cpp"
-  },
-  "cmake.sourceDirectory": "D:/Documents/GitHub/libwin/packages/kernel32"
+    "variant": "cpp",
+    "*.rh": "cpp",
+    "*.gyp": "json",
+    "iterator": "cpp"
+  }
 }

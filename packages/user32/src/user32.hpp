@@ -3,14 +3,10 @@
 #include <napi.h>
 #include <windows.h>
 
-#include "../../common/include/macros.hpp"
-#include "../../common/include/common.hpp"
-#include "../../common/include/arguments.hpp"
-#include "../../common/include/properties.hpp"
 #include "../../common/include/callback_handler.hpp"
+#include "../../common/include/quickbind.hpp"
 
-namespace User32
-{
+namespace User32 {
   Napi::Value ActivateKeyboardLayout(const Napi::CallbackInfo &info);
   Napi::Value AddClipboardFormatListener(const Napi::CallbackInfo &info);
   Napi::Value AddVisualIdentifier(const Napi::CallbackInfo &info);
@@ -1049,4 +1045,4 @@ namespace User32
   Napi::Value wsprintfW(const Napi::CallbackInfo &info);
   Napi::Value wvsprintfA(const Napi::CallbackInfo &info);
   Napi::Value wvsprintfW(const Napi::CallbackInfo &info);
-}
+} // namespace User32

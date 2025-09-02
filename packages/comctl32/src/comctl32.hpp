@@ -3,14 +3,10 @@
 #include <napi.h>
 #include <windows.h>
 
-#include "../../common/include/macros.hpp"
-#include "../../common/include/common.hpp"
-#include "../../common/include/arguments.hpp"
-#include "../../common/include/properties.hpp"
 #include "../../common/include/callback_handler.hpp"
+#include "../../common/include/quickbind.hpp"
 
-namespace Comctl32
-{
+namespace Comctl32 {
   Napi::Value AddMRUStringW(const Napi::CallbackInfo &info);
   Napi::Value CreateMRUListW(const Napi::CallbackInfo &info);
   Napi::Value CreateMappedBitmap(const Napi::CallbackInfo &info);
@@ -130,4 +126,4 @@ namespace Comctl32
   Napi::Value Str_SetPtrW(const Napi::CallbackInfo &info);
   Napi::Value UninitializeFlatSB(const Napi::CallbackInfo &info);
   Napi::Value _TrackMouseEvent(const Napi::CallbackInfo &info);
-}
+} // namespace Comctl32
