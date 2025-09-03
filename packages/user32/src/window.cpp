@@ -68,7 +68,7 @@ Napi::Value User32::RegisterClassExW(const Napi::CallbackInfo &info) {
   const QB_ARG(lpszClassName, qb::ReadRequiredWideString(params, "lpszClassName"));
   const QB_ARG(hIconSm, qb::ReadOptionalHandle<HICON>(params, "hIconSm"));
 
-  wndProcCallbackHandler = std::make_unique<CallbackHandler<Napi::BigInt>>(env, lpfnWndProc);
+  wndProcCallbackHandler = std::make_unique<CallbackHandler<Napi::BigInt>>(lpfnWndProc);
 
   WNDCLASSEXW wcex{};
 

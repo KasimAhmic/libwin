@@ -96,7 +96,7 @@ Napi::Value User32::MessageBoxIndirectW(const Napi::CallbackInfo &info) {
   QB_SET(msgBoxParams, dwLanguageId, dwLanguageId.value());
 
   if (lpfnMsgBoxCallback.has_value()) {
-    msgBoxCallbackHandler = std::make_unique<CallbackHandler<Napi::Value>>(env, lpfnMsgBoxCallback.value());
+    msgBoxCallbackHandler = std::make_unique<CallbackHandler<Napi::Value>>(lpfnMsgBoxCallback.value());
 
     msgBoxParams.lpfnMsgBoxCallback = MsgBoxThunk;
   }
@@ -135,7 +135,7 @@ Napi::Value User32::MessageBoxIndirectA(const Napi::CallbackInfo &info) {
   QB_SET(msgBoxParams, dwLanguageId, dwLanguageId.value());
 
   if (lpfnMsgBoxCallback.has_value()) {
-    msgBoxCallbackHandler = std::make_unique<CallbackHandler<Napi::Value>>(env, lpfnMsgBoxCallback.value());
+    msgBoxCallbackHandler = std::make_unique<CallbackHandler<Napi::Value>>(lpfnMsgBoxCallback.value());
     msgBoxParams.lpfnMsgBoxCallback = MsgBoxThunk;
   }
 

@@ -1,25 +1,31 @@
 #pragma once
 
 #include <napi.h>
-#include <windows.h>
 
 template <typename T> class CallbackHandler {
 public:
-  explicit CallbackHandler(const Napi::Env env, const Napi::Function &fn) : callback(Napi::Persistent(fn)), env(env) {}
+  // TODO: Might wanna switch to Napi::ThreadSafeFunction if we ever need to call from worker threads
+  explicit CallbackHandler(const Napi::Function &fn) : callback(Napi::Persistent(fn)) {}
+  ~CallbackHandler() { this->callback.Reset(); }
 
-  T Invoke(Napi::Value &arg) const {
-    Napi::HandleScope scope(env);
+  CallbackHandler(const CallbackHandler &) = delete;
+  CallbackHandler &operator=(const CallbackHandler &) = delete;
+
+  CallbackHandler(CallbackHandler &&) = default;
+  CallbackHandler &operator=(CallbackHandler &&) = default;
+
+  T Invoke(const Napi::Value &arg) const {
+    Napi::HandleScope scope(this->GetEnv());
     return this->callback.Call({arg}).As<T>();
   }
 
-  T Invoke(std::initializer_list<napi_value> values) const {
-    Napi::HandleScope scope(env);
+  T Invoke(const std::initializer_list<napi_value> values) const {
+    Napi::HandleScope scope(this->GetEnv());
     return this->callback.Call(values).As<T>();
   }
 
-  Napi::Env GetEnv() const { return this->env; }
+  Napi::Env GetEnv() const { return this->callback.Env(); }
 
 private:
   Napi::FunctionReference callback;
-  Napi::Env env;
 };
