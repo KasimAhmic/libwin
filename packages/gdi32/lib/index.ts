@@ -2,6 +2,8 @@ import { createRequire } from 'node:module';
 
 const require = createRequire(import.meta.url);
 
+export * from './font.js';
+
 export const {
   AbortDoc,
   AbortPath,

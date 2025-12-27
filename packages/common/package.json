@@ -1,9 +1,32 @@
 {
   "name": "@libwin/common",
+  "version": "1.0.0",
+  "description": "Common utilities and types for libwin packages",
   "type": "module",
+  "main": "dist/index.js",
   "scripts": {
     "configure": "exit 0",
-    "build": "exit 0",
-    "rebuild": "exit 0"
-  }
+    "clean": "exit 0",
+    "build:lib": "tsc -p ./tsconfig.json && rollup -c",
+    "build": "npm run build:lib",
+    "rebuild": "npm run build:lib",
+    "test": "vitest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KasimAhmic/libwin.git"
+  },
+  "keywords": [
+    "nodejs",
+    "native",
+    "addon",
+    "win32",
+    "c++"
+  ],
+  "author": "Kasim Ahmic",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/KasimAhmic/libwin/issues"
+  },
+  "homepage": "https://github.com/KasimAhmic/libwin#readme"
 }

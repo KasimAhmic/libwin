@@ -26,10 +26,18 @@
 #include <limits>
 #include <optional>
 #include <string>
+#include <string_view>
 #include <type_traits>
 
+#include <minwindef.h>
 #include <napi.h>
-#include <windows.h>
+
+#define QB_THROW_IF_PENDING()                                                                                          \
+  do {                                                                                                                 \
+    if (info.Env().IsExceptionPending()) {                                                                             \
+      return info.Env().Undefined();                                                                                   \
+    }                                                                                                                  \
+  } while (0);
 
 #define QB_ARG(variable, expression)                                                                                   \
   auto variable = expression;                                                                                          \
@@ -111,6 +119,14 @@ namespace qb {
     inline constexpr std::string_view EXPECTED_STRING = "Expected a String ";
     inline constexpr std::string_view EXPECTED_OBJECT = "Expected an Object ";
     inline constexpr std::string_view EXPECTED_FUNCTION = "Expected a Function ";
+    inline constexpr std::string_view EXPECTED_INT8_ARRAY = "Expected an Int8Array ";
+    inline constexpr std::string_view EXPECTED_INT16_ARRAY = "Expected an Int16Array ";
+    inline constexpr std::string_view EXPECTED_INT32_ARRAY = "Expected an Int32Array ";
+    inline constexpr std::string_view EXPECTED_INT64_ARRAY = "Expected a BigInt64Array ";
+    inline constexpr std::string_view EXPECTED_UINT8_ARRAY = "Expected a Uint8Array ";
+    inline constexpr std::string_view EXPECTED_UINT16_ARRAY = "Expected a Uint16Array ";
+    inline constexpr std::string_view EXPECTED_UINT32_ARRAY = "Expected a Uint32Array ";
+    inline constexpr std::string_view EXPECTED_UINT64_ARRAY = "Expected a BigUint64Array ";
     inline constexpr std::string_view BIGINT_TOO_LARGE = "BigInt is too large to fit in ";
     inline constexpr std::string_view AT_INDEX = "at index ";
     inline constexpr std::string_view FOR_PROPERTY = "for property ";
@@ -326,10 +342,36 @@ namespace qb {
       return functionValue;
     };
 
+    // TODO: Pretty sure this makes a copy of the data, which is not ideal for large buffers. Look into alternatives.
+
+    template <typename IntType, typename NapiType, napi_typedarray_type... ArrayTypes>
+    [[nodiscard]] inline std::optional<IntType *> ReadTypedArrayBuffer(const Napi::Value &value,
+                                                                       const qb::detail::Location &location,
+                                                                       const bool required,
+                                                                       const std::string_view &errorMessage) {
+      QB_CHECK_NULLISH(value, required, errorMessage, location);
+
+      if (!value.IsTypedArray()) {
+        qb::detail::ThrowTypeError(value.Env(), errorMessage, location);
+        return std::nullopt;
+      }
+
+      const napi_typedarray_type type = value.As<Napi::TypedArray>().TypedArrayType();
+
+      if (!((type == ArrayTypes) || ...)) {
+        qb::detail::ThrowTypeError(value.Env(), errorMessage, location);
+        return std::nullopt;
+      }
+
+      return std::optional(value.As<NapiType>().Data());
+    }
+
+    // TODO: Move this to a separate file, treat it like an extension to QuickBind for those on Windows.
     template <WinHandle T>
     [[nodiscard]] std::optional<T> inline ReadHandle(const Napi::Value &value,
                                                      const qb::detail::Location &location,
                                                      const bool required) {
+      // QB_CHECK_NULLISH is done in ReadUint64
       const std::optional<uint64_t> handle = qb::detail::ReadUint64(value, location, required);
 
       if (!handle.has_value()) {
@@ -340,6 +382,7 @@ namespace qb {
 
       return handleValue;
     };
+
   } // namespace detail
 
   /**** Unsigned 64-bit integers *************************************************************************************/
@@ -591,7 +634,308 @@ namespace qb {
     return qb::detail::ReadHandle<T>(object.Get(key), qb::detail::Property(key), false);
   };
 
+  /**** Signed 8-bit buffers *****************************************************************************************/
+
+  [[nodiscard]] inline int8_t *ReadRequiredInt8Buffer(const Napi::CallbackInfo &info, const uint16_t index) {
+    return qb::detail::ReadTypedArrayBuffer<int8_t, Napi::Int8Array, napi_int8_array>(info[index],
+                                                                                      qb::detail::Argument(index),
+                                                                                      true,
+                                                                                      qb::detail::EXPECTED_INT8_ARRAY)
+        .value_or({});
+  }
+
+  [[nodiscard]] inline int8_t *ReadRequiredInt8Buffer(const Napi::Object &object, const std::string &key) {
+    return qb::detail::ReadTypedArrayBuffer<int8_t, Napi::Int8Array, napi_int8_array>(object.Get(key),
+                                                                                      qb::detail::Property(key),
+                                                                                      true,
+                                                                                      qb::detail::EXPECTED_INT8_ARRAY)
+        .value_or({});
+  }
+
+  [[nodiscard]] inline std::optional<int8_t *> ReadOptionalInt8Buffer(const Napi::CallbackInfo &info,
+                                                                      const uint16_t index) {
+    return qb::detail::ReadTypedArrayBuffer<int8_t, Napi::Int8Array, napi_int8_array>(info[index],
+                                                                                      qb::detail::Argument(index),
+                                                                                      false,
+                                                                                      qb::detail::EXPECTED_INT8_ARRAY);
+  }
+
+  [[nodiscard]] inline std::optional<int8_t *> ReadOptionalInt8Buffer(const Napi::Object &object,
+                                                                      const std::string &key) {
+    return qb::detail::ReadTypedArrayBuffer<int8_t, Napi::Int8Array, napi_int8_array>(object.Get(key),
+                                                                                      qb::detail::Property(key),
+                                                                                      false,
+                                                                                      qb::detail::EXPECTED_INT8_ARRAY);
+  }
+
+  /**** Signed 16-bit buffers ****************************************************************************************/
+
+  [[nodiscard]] inline int16_t *ReadRequiredInt16Buffer(const Napi::CallbackInfo &info, const uint16_t index) {
+    return qb::detail::ReadTypedArrayBuffer<int16_t, Napi::Int16Array, napi_int16_array>(
+               info[index],
+               qb::detail::Argument(index),
+               true,
+               qb::detail::EXPECTED_INT16_ARRAY)
+        .value_or({});
+  }
+
+  [[nodiscard]] inline int16_t *ReadRequiredInt16Buffer(const Napi::Object &object, const std::string &key) {
+    return qb::detail::ReadTypedArrayBuffer<int16_t, Napi::Int16Array, napi_int16_array>(
+               object.Get(key),
+               qb::detail::Property(key),
+               true,
+               qb::detail::EXPECTED_INT16_ARRAY)
+        .value_or({});
+  }
+
+  [[nodiscard]] inline std::optional<int16_t *> ReadOptionalInt16Buffer(const Napi::CallbackInfo &info,
+                                                                        const uint16_t index) {
+    return qb::detail::ReadTypedArrayBuffer<int16_t, Napi::Int16Array, napi_int16_array>(
+        info[index],
+        qb::detail::Argument(index),
+        false,
+        qb::detail::EXPECTED_INT16_ARRAY);
+  }
+
+  [[nodiscard]] inline std::optional<int16_t *> ReadOptionalInt16Buffer(const Napi::Object &object,
+                                                                        const std::string &key) {
+    return qb::detail::ReadTypedArrayBuffer<int16_t, Napi::Int16Array, napi_int16_array>(
+        object.Get(key),
+        qb::detail::Property(key),
+        false,
+        qb::detail::EXPECTED_INT16_ARRAY);
+  }
+
+  /**** Signed 32-bit buffers ****************************************************************************************/
+
+  [[nodiscard]] inline int32_t *ReadRequiredInt32Buffer(const Napi::CallbackInfo &info, const uint16_t index) {
+    return qb::detail::ReadTypedArrayBuffer<int32_t, Napi::Int32Array, napi_int32_array>(
+               info[index],
+               qb::detail::Argument(index),
+               true,
+               qb::detail::EXPECTED_INT32_ARRAY)
+        .value_or({});
+  }
+
+  [[nodiscard]] inline int32_t *ReadRequiredInt32Buffer(const Napi::Object &object, const std::string &key) {
+    return qb::detail::ReadTypedArrayBuffer<int32_t, Napi::Int32Array, napi_int32_array>(
+               object.Get(key),
+               qb::detail::Property(key),
+               true,
+               qb::detail::EXPECTED_INT32_ARRAY)
+        .value_or({});
+  }
+
+  [[nodiscard]] inline std::optional<int32_t *> ReadOptionalInt32Buffer(const Napi::CallbackInfo &info,
+                                                                        const uint16_t index) {
+    return qb::detail::ReadTypedArrayBuffer<int32_t, Napi::Int32Array, napi_int32_array>(
+        info[index],
+        qb::detail::Argument(index),
+        false,
+        qb::detail::EXPECTED_INT32_ARRAY);
+  }
+
+  [[nodiscard]] inline std::optional<int32_t *> ReadOptionalInt32Buffer(const Napi::Object &object,
+                                                                        const std::string &key) {
+    return qb::detail::ReadTypedArrayBuffer<int32_t, Napi::Int32Array, napi_int32_array>(
+        object.Get(key),
+        qb::detail::Property(key),
+        false,
+        qb::detail::EXPECTED_INT32_ARRAY);
+  }
+
+  /**** Signed 64-bit buffers ****************************************************************************************/
+
+  [[nodiscard]] inline int64_t *ReadRequiredInt64Buffer(const Napi::CallbackInfo &info, const uint16_t index) {
+    return qb::detail::ReadTypedArrayBuffer<int64_t, Napi::BigInt64Array, napi_bigint64_array>(
+               info[index],
+               qb::detail::Argument(index),
+               true,
+               qb::detail::EXPECTED_INT64_ARRAY)
+        .value_or({});
+  }
+
+  [[nodiscard]] inline int64_t *ReadRequiredInt64Buffer(const Napi::Object &object, const std::string &key) {
+    return qb::detail::ReadTypedArrayBuffer<int64_t, Napi::BigInt64Array, napi_bigint64_array>(
+               object.Get(key),
+               qb::detail::Property(key),
+               true,
+               qb::detail::EXPECTED_INT64_ARRAY)
+        .value_or({});
+  }
+
+  [[nodiscard]] inline std::optional<int64_t *> ReadOptionalInt64Buffer(const Napi::CallbackInfo &info,
+                                                                        const uint16_t index) {
+    return qb::detail::ReadTypedArrayBuffer<int64_t, Napi::BigInt64Array, napi_bigint64_array>(
+        info[index],
+        qb::detail::Argument(index),
+        false,
+        qb::detail::EXPECTED_INT64_ARRAY);
+  }
+
+  [[nodiscard]] inline std::optional<int64_t *> ReadOptionalInt64Buffer(const Napi::Object &object,
+                                                                        const std::string &key) {
+    return qb::detail::ReadTypedArrayBuffer<int64_t, Napi::BigInt64Array, napi_bigint64_array>(
+        object.Get(key),
+        qb::detail::Property(key),
+        false,
+        qb::detail::EXPECTED_INT64_ARRAY);
+  }
+
+  /**** Unsigned 8-bit buffers ***************************************************************************************/
+
+  [[nodiscard]] inline uint8_t *ReadRequiredUint8Buffer(const Napi::CallbackInfo &info, const uint16_t index) {
+    return qb::detail::ReadTypedArrayBuffer<uint8_t, Napi::Uint8Array, napi_uint8_array, napi_uint8_clamped_array>(
+               info[index],
+               qb::detail::Argument(index),
+               true,
+               qb::detail::EXPECTED_UINT8_ARRAY)
+        .value_or({});
+  }
+
+  [[nodiscard]] inline uint8_t *ReadRequiredUint8Buffer(const Napi::Object &object, const std::string &key) {
+    return qb::detail::ReadTypedArrayBuffer<uint8_t, Napi::Uint8Array, napi_uint8_array, napi_uint8_clamped_array>(
+               object.Get(key),
+               qb::detail::Property(key),
+               true,
+               qb::detail::EXPECTED_UINT8_ARRAY)
+        .value_or({});
+  }
+
+  [[nodiscard]] inline std::optional<uint8_t *> ReadOptionalUint8Buffer(const Napi::CallbackInfo &info,
+                                                                        const uint16_t index) {
+    return qb::detail::ReadTypedArrayBuffer<uint8_t, Napi::Uint8Array, napi_uint8_array, napi_uint8_clamped_array>(
+        info[index],
+        qb::detail::Argument(index),
+        false,
+        qb::detail::EXPECTED_UINT8_ARRAY);
+  }
+
+  [[nodiscard]] inline std::optional<uint8_t *> ReadOptionalUint8Buffer(const Napi::Object &object,
+                                                                        const std::string &key) {
+    return qb::detail::ReadTypedArrayBuffer<uint8_t, Napi::Uint8Array, napi_uint8_array, napi_uint8_clamped_array>(
+        object.Get(key),
+        qb::detail::Property(key),
+        false,
+        qb::detail::EXPECTED_UINT8_ARRAY);
+  }
+
+  /**** Unsigned 16-bit buffers **************************************************************************************/
+
+  [[nodiscard]] inline uint16_t *ReadRequiredUint16Buffer(const Napi::CallbackInfo &info, const uint16_t index) {
+    return qb::detail::ReadTypedArrayBuffer<uint16_t, Napi::Uint16Array, napi_uint16_array>(
+               info[index],
+               qb::detail::Argument(index),
+               true,
+               qb::detail::EXPECTED_UINT16_ARRAY)
+        .value_or({});
+  }
+
+  [[nodiscard]] inline uint16_t *ReadRequiredUint16Buffer(const Napi::Object &object, const std::string &key) {
+    return qb::detail::ReadTypedArrayBuffer<uint16_t, Napi::Uint16Array, napi_uint16_array>(
+               object.Get(key),
+               qb::detail::Property(key),
+               true,
+               qb::detail::EXPECTED_UINT16_ARRAY)
+        .value_or({});
+  }
+
+  [[nodiscard]] inline std::optional<uint16_t *> ReadOptionalUint16Buffer(const Napi::CallbackInfo &info,
+                                                                          const uint16_t index) {
+    return qb::detail::ReadTypedArrayBuffer<uint16_t, Napi::Uint16Array, napi_uint16_array>(
+        info[index],
+        qb::detail::Argument(index),
+        false,
+        qb::detail::EXPECTED_UINT16_ARRAY);
+  }
+
+  [[nodiscard]] inline std::optional<uint16_t *> ReadOptionalUint16Buffer(const Napi::Object &object,
+                                                                          const std::string &key) {
+    return qb::detail::ReadTypedArrayBuffer<uint16_t, Napi::Uint16Array, napi_uint16_array>(
+        object.Get(key),
+        qb::detail::Property(key),
+        false,
+        qb::detail::EXPECTED_UINT16_ARRAY);
+  }
+
+  /**** Unsigned 32-bit buffers **************************************************************************************/
+
+  [[nodiscard]] inline uint32_t *ReadRequiredUint32Buffer(const Napi::CallbackInfo &info, const uint16_t index) {
+    return qb::detail::ReadTypedArrayBuffer<uint32_t, Napi::Uint32Array, napi_uint32_array>(
+               info[index],
+               qb::detail::Argument(index),
+               true,
+               qb::detail::EXPECTED_UINT32_ARRAY)
+        .value_or({});
+  }
+
+  [[nodiscard]] inline uint32_t *ReadRequiredUint32Buffer(const Napi::Object &object, const std::string &key) {
+    return qb::detail::ReadTypedArrayBuffer<uint32_t, Napi::Uint32Array, napi_uint32_array>(
+               object.Get(key),
+               qb::detail::Property(key),
+               true,
+               qb::detail::EXPECTED_UINT32_ARRAY)
+        .value_or({});
+  }
+
+  [[nodiscard]] inline std::optional<uint32_t *> ReadOptionalUint32Buffer(const Napi::CallbackInfo &info,
+                                                                          const uint16_t index) {
+    return qb::detail::ReadTypedArrayBuffer<uint32_t, Napi::Uint32Array, napi_uint32_array>(
+        info[index],
+        qb::detail::Argument(index),
+        false,
+        qb::detail::EXPECTED_UINT32_ARRAY);
+  }
+
+  [[nodiscard]] inline std::optional<uint32_t *> ReadOptionalUint32Buffer(const Napi::Object &object,
+                                                                          const std::string &key) {
+    return qb::detail::ReadTypedArrayBuffer<uint32_t, Napi::Uint32Array, napi_uint32_array>(
+        object.Get(key),
+        qb::detail::Property(key),
+        false,
+        qb::detail::EXPECTED_UINT32_ARRAY);
+  }
+
+  /**** Unsigned 64-bit buffers **************************************************************************************/
+
+  [[nodiscard]] inline uint64_t *ReadRequiredUint64Buffer(const Napi::CallbackInfo &info, const uint16_t index) {
+    return qb::detail::ReadTypedArrayBuffer<uint64_t, Napi::BigUint64Array, napi_biguint64_array>(
+               info[index],
+               qb::detail::Argument(index),
+               true,
+               qb::detail::EXPECTED_UINT64_ARRAY)
+        .value_or({});
+  }
+
+  [[nodiscard]] inline uint64_t *ReadRequiredUint64Buffer(const Napi::Object &object, const std::string &key) {
+    return qb::detail::ReadTypedArrayBuffer<uint64_t, Napi::BigUint64Array, napi_biguint64_array>(
+               object.Get(key),
+               qb::detail::Property(key),
+               true,
+               qb::detail::EXPECTED_UINT64_ARRAY)
+        .value_or({});
+  }
+
+  [[nodiscard]] inline std::optional<uint64_t *> ReadOptionalUint64Buffer(const Napi::CallbackInfo &info,
+                                                                          const uint16_t index) {
+    return qb::detail::ReadTypedArrayBuffer<uint64_t, Napi::BigUint64Array, napi_biguint64_array>(
+        info[index],
+        qb::detail::Argument(index),
+        false,
+        qb::detail::EXPECTED_UINT64_ARRAY);
+  }
+
+  [[nodiscard]] inline std::optional<uint64_t *> ReadOptionalUint64Buffer(const Napi::Object &object,
+                                                                          const std::string &key) {
+    return qb::detail::ReadTypedArrayBuffer<uint64_t, Napi::BigUint64Array, napi_biguint64_array>(
+        object.Get(key),
+        qb::detail::Property(key),
+        false,
+        qb::detail::EXPECTED_UINT64_ARRAY);
+  }
+
   /**** Convertors ***************************************************************************************************/
+
   template <qb::WinHandle T> inline Napi::BigInt HandleToBigInt(const Napi::CallbackInfo &info, const T &value) {
     return Napi::BigInt::New(info.Env(), reinterpret_cast<uintptr_t>(value));
   }

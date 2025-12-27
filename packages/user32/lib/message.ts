@@ -1,3 +1,9 @@
+/**
+ * Bless up Wine devs! 🙏
+ *
+ * https://gitlab.winehq.org/wine/wine/-/wikis/Wine-Developer%27s-Guide/List-of-Windows-Messages
+ */
+
 export const WM_NULL = 0x0000;
 export const WM_CREATE = 0x0001;
 export const WM_DESTROY = 0x0002;

@@ -23,6 +23,10 @@ Napi::Object Initialize(const Napi::Env env, Napi::Object exports) {
   QB_EXPORT(User32::UpdateWindow);
   QB_EXPORT(User32::DefWindowProcW);
   QB_EXPORT(User32::PostQuitMessage);
+  QB_EXPORT(User32::LoadCursorW);
+  QB_EXPORT(User32::LoadCursorA);
+  QB_EXPORT(User32::SendMessageW);
+  QB_EXPORT(User32::SendMessageA);
 
   return exports;
 }

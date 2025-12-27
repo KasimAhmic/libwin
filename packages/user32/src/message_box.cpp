@@ -22,47 +22,61 @@ static void CALLBACK MsgBoxThunk(const LPHELPINFO lpHelpInfo) {
 }
 
 Napi::Value User32::MessageBoxW(const Napi::CallbackInfo &info) {
-  const QB_ARG(hWnd, qb::ReadRequiredHandle<HWND>(info, 0));
-  const QB_ARG(lpText, qb::ReadRequiredWideString(info, 1));
-  const QB_ARG(lpCaption, qb::ReadRequiredWideString(info, 2));
+  const QB_ARG(hWnd, qb::ReadOptionalHandle<HWND>(info, 0));
+  const QB_ARG(lpText, qb::ReadOptionalWideString(info, 1));
+  const QB_ARG(lpCaption, qb::ReadOptionalWideString(info, 2));
   const QB_ARG(uType, qb::ReadRequiredUint32(info, 3));
 
-  const int result = ::MessageBoxW(hWnd, lpText.c_str(), lpCaption.c_str(), uType);
+  const int result = ::MessageBoxW(hWnd ? hWnd.value() : nullptr,
+                                   lpText ? lpText->c_str() : nullptr,
+                                   lpCaption ? lpCaption->c_str() : nullptr,
+                                   uType);
 
   return Napi::Number::New(info.Env(), result);
 }
 
 Napi::Value User32::MessageBoxA(const Napi::CallbackInfo &info) {
-  const QB_ARG(hWnd, qb::ReadRequiredHandle<HWND>(info, 0));
-  const QB_ARG(lpText, qb::ReadRequiredString(info, 1));
-  const QB_ARG(lpCaption, qb::ReadRequiredString(info, 2));
+  const QB_ARG(hWnd, qb::ReadOptionalHandle<HWND>(info, 0));
+  const QB_ARG(lpText, qb::ReadOptionalString(info, 1));
+  const QB_ARG(lpCaption, qb::ReadOptionalString(info, 2));
   const QB_ARG(uType, qb::ReadRequiredUint32(info, 3));
 
-  const int result = ::MessageBoxA(hWnd, lpText.c_str(), lpCaption.c_str(), uType);
+  const int result = ::MessageBoxA(hWnd ? hWnd.value() : nullptr,
+                                   lpText ? lpText->c_str() : nullptr,
+                                   lpCaption ? lpCaption->c_str() : nullptr,
+                                   uType);
 
   return Napi::Number::New(info.Env(), result);
 }
 
 Napi::Value User32::MessageBoxExW(const Napi::CallbackInfo &info) {
-  const QB_ARG(hWnd, qb::ReadRequiredHandle<HWND>(info, 0));
-  const QB_ARG(lpText, qb::ReadRequiredWideString(info, 1));
-  const QB_ARG(lpCaption, qb::ReadRequiredWideString(info, 2));
+  const QB_ARG(hWnd, qb::ReadOptionalHandle<HWND>(info, 0));
+  const QB_ARG(lpText, qb::ReadOptionalWideString(info, 1));
+  const QB_ARG(lpCaption, qb::ReadOptionalWideString(info, 2));
   const QB_ARG(uType, qb::ReadRequiredUint32(info, 3));
   const QB_ARG(wLanguageId, qb::ReadRequiredUint16(info, 4));
 
-  const int result = ::MessageBoxExW(hWnd, lpText.c_str(), lpCaption.c_str(), uType, wLanguageId);
+  const int result = ::MessageBoxExW(hWnd ? hWnd.value() : nullptr,
+                                     lpText ? lpText->c_str() : nullptr,
+                                     lpCaption ? lpCaption->c_str() : nullptr,
+                                     uType,
+                                     wLanguageId);
 
   return Napi::Number::New(info.Env(), result);
 }
 
 Napi::Value User32::MessageBoxExA(const Napi::CallbackInfo &info) {
-  const QB_ARG(hWnd, qb::ReadRequiredHandle<HWND>(info, 0));
-  const QB_ARG(lpText, qb::ReadRequiredString(info, 1));
-  const QB_ARG(lpCaption, qb::ReadRequiredString(info, 2));
+  const QB_ARG(hWnd, qb::ReadOptionalHandle<HWND>(info, 0));
+  const QB_ARG(lpText, qb::ReadOptionalString(info, 1));
+  const QB_ARG(lpCaption, qb::ReadOptionalString(info, 2));
   const QB_ARG(uType, qb::ReadRequiredUint32(info, 3));
   const QB_ARG(wLanguageId, qb::ReadRequiredUint16(info, 4));
 
-  const int result = ::MessageBoxExA(hWnd, lpText.c_str(), lpCaption.c_str(), uType, wLanguageId);
+  const int result = ::MessageBoxExA(hWnd ? hWnd.value() : nullptr,
+                                     lpText ? lpText->c_str() : nullptr,
+                                     lpCaption ? lpCaption->c_str() : nullptr,
+                                     uType,
+                                     wLanguageId);
 
   return Napi::Number::New(info.Env(), result);
 }

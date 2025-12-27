@@ -1,7 +1,8 @@
 #pragma once
 
-#include <napi.h>
 #include <windows.h>
+#include <commctrl.h>
+#include <napi.h>
 
 #include "../../common/include/callback_handler.hpp"
 #include "../../common/include/quickbind.hpp"
@@ -70,7 +71,7 @@ namespace Comctl32 {
   Napi::Value GetEffectiveClientRect(const Napi::CallbackInfo &info);
   Napi::Value GetMUILanguage(const Napi::CallbackInfo &info);
   Napi::Value ImageList_Add(const Napi::CallbackInfo &info);
-  Napi::Value ImageList_AddIcon(const Napi::CallbackInfo &info);
+  // Napi::Value ImageList_AddIcon(const Napi::CallbackInfo &info);
   Napi::Value ImageList_AddMasked(const Napi::CallbackInfo &info);
   Napi::Value ImageList_BeginDrag(const Napi::CallbackInfo &info);
   Napi::Value ImageList_Copy(const Napi::CallbackInfo &info);

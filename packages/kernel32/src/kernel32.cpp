@@ -3,6 +3,10 @@
 Napi::Object Initialize(const Napi::Env env, Napi::Object exports) {
   QB_EXPORT(Kernel32::GetLastError);
   QB_EXPORT(Kernel32::GetModuleHandleW);
+  QB_EXPORT(Kernel32::CreateActCtxW);
+  QB_EXPORT(Kernel32::ActivateActCtx);
+  QB_EXPORT(Kernel32::FormatMessageW);
+  QB_EXPORT(Kernel32::FormatMessageA);
 
   return exports;
 }

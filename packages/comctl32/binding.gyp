@@ -11,6 +11,9 @@
       "dependencies": [
         "<!(node -p \"require('node-addon-api').targets\"):node_addon_api"
       ],
+      "libraries": [
+        "-lcomctl32"
+      ],
       "cflags": [
         "-fno-exceptions"
       ],

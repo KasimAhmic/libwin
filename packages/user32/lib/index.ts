@@ -2,6 +2,8 @@ import { createRequire } from 'node:module';
 
 const require = createRequire(import.meta.url);
 
+export * from './colors.js';
+export * from './cursor.js';
 export * from './class-styles.js';
 export * from './window-styles.js';
 export * from './extended-window-styles.js';

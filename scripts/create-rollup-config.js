@@ -6,8 +6,8 @@ import { fileURLToPath } from 'node:url';
 import typescript from '@rollup/plugin-typescript';
 
 /**
- * @param {string} root
- * @param {string} addon
+ * @param {string} [root]
+ * @param {string} [addon]
  *
  * @returns {import('rollup').RollupOptions}
  */
@@ -30,7 +30,7 @@ export function createRollupConfig(root, addon) {
         removeComments: true,
         exclude: 'lib/**/*.test.*',
       }),
-      copyFilesPlugin(root, addon),
+      root && addon ? copyFilesPlugin(root, addon) : undefined,
     ],
   };
 }
