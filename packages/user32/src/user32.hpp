@@ -1,7 +1,7 @@
 #pragma once
 
-#include <napi.h>
 #include <windows.h>
+#include <napi.h>
 
 #include "../../common/include/callback_handler.hpp"
 #include "../../common/include/quickbind.hpp"
@@ -1045,4 +1045,5 @@ namespace User32 {
   Napi::Value wsprintfW(const Napi::CallbackInfo &info);
   Napi::Value wvsprintfA(const Napi::CallbackInfo &info);
   Napi::Value wvsprintfW(const Napi::CallbackInfo &info);
+  Napi::Value MAKEINTRESOURCEW_(const Napi::CallbackInfo &info);
 } // namespace User32

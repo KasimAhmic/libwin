@@ -1,0 +1,93 @@
+export const OUT_DEFAULT_PRECIS = 0;
+export const OUT_STRING_PRECIS = 1;
+export const OUT_CHARACTER_PRECIS = 2;
+export const OUT_STROKE_PRECIS = 3;
+export const OUT_TT_PRECIS = 4;
+export const OUT_DEVICE_PRECIS = 5;
+export const OUT_RASTER_PRECIS = 6;
+export const OUT_TT_ONLY_PRECIS = 7;
+export const OUT_OUTLINE_PRECIS = 8;
+export const OUT_SCREEN_OUTLINE_PRECIS = 9;
+export const OUT_PS_ONLY_PRECIS = 10;
+
+export const CLIP_DEFAULT_PRECIS = 0;
+export const CLIP_CHARACTER_PRECIS = 1;
+export const CLIP_STROKE_PRECIS = 2;
+export const CLIP_MASK = 0xf;
+export const CLIP_LH_ANGLES = 1 << 4;
+export const CLIP_TT_ALWAYS = 2 << 4;
+export const CLIP_DFA_DISABLE = 4 << 4;
+export const CLIP_EMBEDDED = 8 << 4;
+
+export const DEFAULT_QUALITY = 0;
+export const DRAFT_QUALITY = 1;
+export const PROOF_QUALITY = 2;
+export const NONANTIALIASED_QUALITY = 3;
+export const ANTIALIASED_QUALITY = 4;
+
+export const DEFAULT_PITCH = 0;
+export const FIXED_PITCH = 1;
+export const VARIABLE_PITCH = 2;
+export const MONO_FONT = 8;
+
+export const ANSI_CHARSET = 0;
+export const DEFAULT_CHARSET = 1;
+export const SYMBOL_CHARSET = 2;
+export const SHIFTJIS_CHARSET = 128;
+export const HANGEUL_CHARSET = 129;
+export const HANGUL_CHARSET = 129;
+export const GB2312_CHARSET = 134;
+export const CHINESEBIG5_CHARSET = 136;
+export const OEM_CHARSET = 255;
+export const JOHAB_CHARSET = 130;
+export const HEBREW_CHARSET = 177;
+export const ARABIC_CHARSET = 178;
+export const GREEK_CHARSET = 161;
+export const TURKISH_CHARSET = 162;
+export const VIETNAMESE_CHARSET = 163;
+export const THAI_CHARSET = 222;
+export const EASTEUROPE_CHARSET = 238;
+export const RUSSIAN_CHARSET = 204;
+export const MAC_CHARSET = 77;
+export const BALTIC_CHARSET = 186;
+
+export const FS_LATIN1 = 0x00000001;
+export const FS_LATIN2 = 0x00000002;
+export const FS_CYRILLIC = 0x00000004;
+export const FS_GREEK = 0x00000008;
+export const FS_TURKISH = 0x00000010;
+export const FS_HEBREW = 0x00000020;
+export const FS_ARABIC = 0x00000040;
+export const FS_BALTIC = 0x00000080;
+export const FS_VIETNAMESE = 0x00000100;
+export const FS_THAI = 0x00010000;
+export const FS_JISJAPAN = 0x00020000;
+export const FS_CHINESESIMP = 0x00040000;
+export const FS_WANSUNG = 0x00080000;
+export const FS_CHINESETRAD = 0x00100000;
+export const FS_JOHAB = 0x00200000;
+export const FS_SYMBOL = 0x80000000;
+
+export const FF_DONTCARE = 0x00;
+export const FF_ROMAN = 0x10;
+export const FF_SWISS = 0x20;
+export const FF_MODERN = 0x30;
+export const FF_SCRIPT = 0x40;
+export const FF_DECORATIVE = 0x50;
+
+export const FW_DONTCARE = 0;
+export const FW_THIN = 100;
+export const FW_EXTRALIGHT = 200;
+export const FW_LIGHT = 300;
+export const FW_NORMAL = 400;
+export const FW_MEDIUM = 500;
+export const FW_SEMIBOLD = 600;
+export const FW_BOLD = 700;
+export const FW_EXTRABOLD = 800;
+export const FW_HEAVY = 900;
+
+export const FW_ULTRALIGHT = FW_EXTRALIGHT;
+export const FW_REGULAR = FW_NORMAL;
+export const FW_DEMIBOLD = FW_SEMIBOLD;
+export const FW_ULTRABOLD = FW_EXTRABOLD;
+export const FW_BLACK = FW_HEAVY;

@@ -1,5 +1,10 @@
 #include "comctl32.hpp"
 
-Napi::Object Initialize(const Napi::Env env, Napi::Object exports) { return exports; }
+Napi::Object Initialize(const Napi::Env env, Napi::Object exports) {
+  QB_EXPORT(Comctl32::InitCommonControls);
+  QB_EXPORT(Comctl32::InitCommonControlsEx);
 
-NODE_API_MODULE(comctl32, Initialize)
+  return exports;
+}
+
+NODE_API_MODULE(commctrl, Initialize)

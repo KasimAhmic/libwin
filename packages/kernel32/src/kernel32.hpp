@@ -1,7 +1,7 @@
 #pragma once
 
-#include <napi.h>
 #include <windows.h>
+#include <napi.h>
 
 #include "../../common/include/callback_handler.hpp"
 #include "../../common/include/quickbind.hpp"
