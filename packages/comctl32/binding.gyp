@@ -1,4 +1,5 @@
 {
+  "$schema": "../../gyp.schema.json",
   "targets": [
     {
       "target_name": "comctl32",

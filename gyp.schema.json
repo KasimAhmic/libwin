@@ -1,0 +1,600 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Binding GYP Schema",
+  "description": "Schema for binding.gyp files",
+  "type": "object",
+  "required": [
+    "targets"
+  ],
+  "properties": {
+    "conditions": {
+      "description": "A conditional section that may contain other items that can be present in a top-level dictionary, on a conditional basis.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Condition"
+      }
+    },
+    "includes": {
+      "description": "A list of .gypi files to be included in the top-level dictionary.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "target_defaults": {
+      "description": "A dictionary of default settings to be inherited by all targets in the top-level dictionary.",
+      "type": "object",
+      "properties": {
+        "conditions": {
+          "description": "A conditional section that may contain other items that can be present in a top-level dictionary, on a conditional basis.",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Condition"
+          }
+        },
+        "configurations": {
+          "description": "Build configurations. Commonly an object keyed by configuration name (Debug/Release), but some docs describe a list form.",
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": {
+                "$ref": "#/$defs/Configuration"
+              }
+            },
+            {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/Configuration"
+              }
+            }
+          ]
+        },
+        "includes": {
+          "description": "A list of .gypi files to be included in the top-level dictionary.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "variables": {
+          "description": "A dictionary containing variable definitions. Each key in this dictionary is the name of a variable, and each value must be a string value that the variable is to be set to.",
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "targets": {
+      "description": "A list of target specifications.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Target"
+      }
+    },
+    "variables": {
+      "description": "A dictionary containing variable definitions. Each key in this dictionary is the name of a variable, and each value must be a string value that the variable is to be set to.",
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    }
+  },
+  "additionalProperties": true,
+  "$defs": {
+    "Target": {
+      "type": "object",
+      "description": "A target definition.",
+      "properties": {
+        "actions": {
+          "description": "A list of special custom actions to perform on a specific input file, or files, to produce output files.",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Action"
+          }
+        },
+        "all_dependent_settings": {
+          "description": "A dictionary of settings to be applied to all dependents of the target, transitively. This includes direct dependents and the entire set of their dependents, and so on. This section may contain anything found within a target dictionary, except configurations, target_name, and type sections. Compare direct_dependent_settings and link_settings.",
+          "$ref": "#/$defs/DependentSettings"
+        },
+        "configurations": {
+          "description": "Build configurations. Commonly an object keyed by configuration name (Debug/Release), but some docs describe a list form.",
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": {
+                "$ref": "#/$defs/Configuration"
+              }
+            },
+            {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/Configuration"
+              }
+            }
+          ]
+        },
+        "copies": {
+          "description": "A list of copy actions to perform.",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Copy"
+          }
+        },
+        "defines": {
+          "description": "A list of preprocesor definitions to be passed on the command line to the C/C++ compiler (via -D or /D options).",
+          "type": "array",
+          "items": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "array",
+                "prefixItems": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "string"
+                  }
+                ],
+                "minItems": 2,
+                "maxItems": 2
+              }
+            ]
+          }
+        },
+        "dependencies": {
+          "description": "A list of targets on which this target depends. Targets in other .gyp files are specified as ../path/to/other.gyp:target_we_want.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "direct_dependent_settings": {
+          "description": "A dictionary of settings to be applied to other targets that depend on this target. These settings will only be applied to direct dependents. This section may contain anything found within a target dictionary, except configurations, target_name, and type sections. Compare with all_dependent_settings and link_settings.",
+          "$ref": "#/$defs/DependentSettings"
+        },
+        "include_dirs": {
+          "description": "A list of include directories to be passed on the command line to the C/C++ compiler (via -I or /I options).",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "libraries": {
+          "description": "A list of list of libraries (and/or frameworks) on which this target depends.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "link_settings": {
+          "description": "A dictionary of settings to be applied to targets in which this target's contents are linked. executable and shared_library targets are linkable, so if they depend on a non-linkable target such as a static_library, they will adopt its link_settings. This section can contain anything found within a target dictionary, except configurations, target_name, and type sections. Compare all_dependent_settings and direct_dependent_settings.",
+          "$ref": "#/$defs/DependentSettings"
+        },
+        "rules": {
+          "description": "A special custom action to perform on a list of input files, to produce output files.",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Rule"
+          }
+        },
+        "sources": {
+          "description": "A list of source files that are used to build this target or which should otherwise show up in the IDE for this target. In practice, we expect this list to be a union of all files necessary to build the target on all platforms, as well as other related files that aren't actually used for building, like README files.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "target_conditions": {
+          "description": "Like conditions, but evaluation is delayed until the settings have been merged into an actual target. target_conditions may be used to place conditionals into a target_defaults section but have them still depend on specific target settings.",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Condition"
+          }
+        },
+        "target_name": {
+          "description": "The name of a target being defined.",
+          "type": "string"
+        },
+        "type": {
+          "description": "The type of target being defined. This field currently supports executable, static_library, shared_library, and none. The none target type is useful when producing output which is not linked. For example, converting raw translation files into resources or documentation into platform specific help files.",
+          "type": "string",
+          "enum": [
+            "executable",
+            "static_library",
+            "shared_library",
+            "none"
+          ]
+        },
+        "msvs_props": {
+          "description": "A list of Visual Studio property sheets (.vsprops files) to be used to build the target.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "xcode_config_file": {
+          "description": "An Xcode configuration (.xcconfig file) to be used to build the target.",
+          "type": "string"
+        },
+        "xcode_framework_dirs": {
+          "description": "A list of framework directories be used to build the target.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "conditions": {
+          "description": "A conditional section that may contain other items that can be present in a top-level dictionary, on a conditional basis.",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Condition"
+          }
+        },
+        "includes": {
+          "description": "A list of .gypi files to be included in the top-level dictionary.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "variables": {
+          "description": "A dictionary containing variable definitions. Each key in this dictionary is the name of a variable, and each value must be a string value that the variable is to be set to.",
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "Action": {
+      "type": "object",
+      "description": "An action definition.",
+      "properties": {
+        "action_name": {
+          "description": "The name of the action. Depending on how actions are implemented in the various generators, some may desire or require this property to be set to a unique name; others may ignore this property entirely.",
+          "type": "string"
+        },
+        "inputs": {
+          "description": "A list of pathnames treated as inputs to the custom action.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "outputs": {
+          "description": "A list of pathnames that the custom action produces.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "action": {
+          "description": "A command line invocation used to produce outputs from inputs. For maximum cross-platform compatibility, invocations that require a Python interpreter should be specified with a first element \"python\". This will enable generators for environments with specialized Python installations to be able to perform the action in an appropriate Python environment.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "message": {
+          "description": "A message to be displayed to the user by the build system when the action is run.",
+          "type": "string"
+        }
+      }
+    },
+    "Rule": {
+      "type": "object",
+      "description": "A rule definition.",
+      "properties": {
+        "rule_name": {
+          "description": "The name of the rule. Depending on how Rules are implemented in the various generators, some may desire or require this property to be set to a unique name; others may ignore this property entirely.",
+          "type": "string"
+        },
+        "extension": {
+          "description": "All source files of the current target with the given extension will be treated successively as inputs to the rule.",
+          "type": "string"
+        },
+        "inputs": {
+          "description": "Additional dependencies of the rule.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "outputs": {
+          "description": "A list of pathnames that the rule produces. Has access to RULE_INPUT_ variables (see below).",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "action": {
+          "description": "A command line invocation used to produce outputs from inputs. For maximum cross-platform compatibility, invocations that require a Python interpreter should be specified with a first element \"python\". This will enable generators for environments with specialized Python installations to be able to perform the action in an appropriate Python environment. Has access to RULE_INPUT_ variables (see below).",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "message": {
+          "description": "A message to be displayed to the user by the build system when the action is run. Has access to RULE_INPUT_ variables (see below).",
+          "type": "string"
+        }
+      }
+    },
+    "Condition": {
+      "type": "array",
+      "prefixItems": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "object"
+        },
+        {
+          "type": "object"
+        }
+      ],
+      "minItems": 2,
+      "maxItems": 3,
+      "unevaluatedItems": false
+    },
+    "Configuration": {
+      "type": "object",
+      "description": "Specifies different build configurations.",
+      "properties": {
+        "copies": {
+          "description": "A list of copy actions to perform.",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Copy"
+          }
+        },
+        "defines": {
+          "description": "A list of preprocesor definitions to be passed on the command line to the C/C++ compiler (via -D or /D options).",
+          "type": "array",
+          "items": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "array",
+                "prefixItems": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "string"
+                  }
+                ],
+                "minItems": 2,
+                "maxItems": 2
+              }
+            ]
+          }
+        },
+        "include_dirs": {
+          "description": "A list of include directories to be passed on the command line to the C/C++ compiler (via -I or /I options).",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "rules": {
+          "description": "A special custom action to perform on a list of input files, to produce output files.",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Rule"
+          }
+        },
+        "target_conditions": {
+          "description": "Like conditions, but evaluation is delayed until the settings have been merged into an actual target. target_conditions may be used to place conditionals into a target_defaults section but have them still depend on specific target settings.",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Condition"
+          }
+        },
+        "msvs_props": {
+          "description": "A list of Visual Studio property sheets (.vsprops files) to be used to build the target.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "xcode_config_file": {
+          "description": "An Xcode configuration (.xcconfig file) to be used to build the target.",
+          "type": "string"
+        },
+        "xcode_framework_dirs": {
+          "description": "A list of framework directories be used to build the target.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "conditions": {
+          "description": "A conditional section that may contain other items that can be present in a top-level dictionary, on a conditional basis.",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Condition"
+          }
+        },
+        "includes": {
+          "description": "A list of .gypi files to be included in the top-level dictionary.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "variables": {
+          "description": "A dictionary containing variable definitions. Each key in this dictionary is the name of a variable, and each value must be a string value that the variable is to be set to.",
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "DependentSettings": {
+      "description": "TODO",
+      "type": "object",
+      "properties": {
+        "actions": {
+          "description": "A list of special custom actions to perform on a specific input file, or files, to produce output files.",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Action"
+          }
+        },
+        "all_dependent_settings": {
+          "description": "A dictionary of settings to be applied to all dependents of the target, transitively. This includes direct dependents and the entire set of their dependents, and so on. This section may contain anything found within a target dictionary, except configurations, target_name, and type sections. Compare direct_dependent_settings and link_settings.",
+          "$ref": "#/$defs/DependentSettings"
+        },
+        "copies": {
+          "description": "A list of copy actions to perform.",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Copy"
+          }
+        },
+        "defines": {
+          "description": "A list of preprocesor definitions to be passed on the command line to the C/C++ compiler (via -D or /D options).",
+          "type": "array",
+          "items": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "array",
+                "prefixItems": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "string"
+                  }
+                ],
+                "minItems": 2,
+                "maxItems": 2
+              }
+            ]
+          }
+        },
+        "dependencies": {
+          "description": "A list of targets on which this target depends. Targets in other .gyp files are specified as ../path/to/other.gyp:target_we_want.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "direct_dependent_settings": {
+          "description": "A dictionary of settings to be applied to other targets that depend on this target. These settings will only be applied to direct dependents. This section may contain anything found within a target dictionary, except configurations, target_name, and type sections. Compare with all_dependent_settings and link_settings.",
+          "$ref": "#/$defs/DependentSettings"
+        },
+        "include_dirs": {
+          "description": "A list of include directories to be passed on the command line to the C/C++ compiler (via -I or /I options).",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "libraries": {
+          "description": "A list of list of libraries (and/or frameworks) on which this target depends.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "link_settings": {
+          "description": "A dictionary of settings to be applied to targets in which this target's contents are linked. executable and shared_library targets are linkable, so if they depend on a non-linkable target such as a static_library, they will adopt its link_settings. This section can contain anything found within a target dictionary, except configurations, target_name, and type sections. Compare all_dependent_settings and direct_dependent_settings.",
+          "$ref": "#/$defs/DependentSettings"
+        },
+        "rules": {
+          "description": "A special custom action to perform on a list of input files, to produce output files.",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Rule"
+          }
+        },
+        "sources": {
+          "description": "A list of source files that are used to build this target or which should otherwise show up in the IDE for this target. In practice, we expect this list to be a union of all files necessary to build the target on all platforms, as well as other related files that aren't actually used for building, like README files.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "target_conditions": {
+          "description": "Like conditions, but evaluation is delayed until the settings have been merged into an actual target. target_conditions may be used to place conditionals into a target_defaults section but have them still depend on specific target settings.",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Condition"
+          }
+        },
+        "msvs_props": {
+          "description": "A list of Visual Studio property sheets (.vsprops files) to be used to build the target.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "xcode_config_file": {
+          "description": "An Xcode configuration (.xcconfig file) to be used to build the target.",
+          "type": "string"
+        },
+        "xcode_framework_dirs": {
+          "description": "A list of framework directories be used to build the target.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "conditions": {
+          "description": "A conditional section that may contain other items that can be present in a top-level dictionary, on a conditional basis.",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Condition"
+          }
+        },
+        "includes": {
+          "description": "A list of .gypi files to be included in the top-level dictionary.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "variables": {
+          "description": "A dictionary containing variable definitions. Each key in this dictionary is the name of a variable, and each value must be a string value that the variable is to be set to.",
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "Copy": {
+      "description": "TODO",
+      "type": "object",
+      "properties": {
+        "destination": {
+          "description": "The directory into which the files will be copied.",
+          "type": "string"
+        },
+        "files": {
+          "description": "A list of files to be copied.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
