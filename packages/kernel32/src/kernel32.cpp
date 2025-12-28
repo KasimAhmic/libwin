@@ -7,6 +7,9 @@ Napi::Object Initialize(const Napi::Env env, Napi::Object exports) {
   QB_EXPORT(Kernel32::ActivateActCtx);
   QB_EXPORT(Kernel32::FormatMessageW);
   QB_EXPORT(Kernel32::FormatMessageA);
+  QB_EXPORT(Kernel32::GetCommandLineW);
+  QB_EXPORT(Kernel32::GetCommandLineA);
+  QB_EXPORT(Kernel32::GetStartupInfoW);
 
   return exports;
 }

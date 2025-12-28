@@ -30,7 +30,7 @@ Napi::Value User32::CreateWindowExW(const Napi::CallbackInfo &info) {
   const QB_ARG(nWidth, qb::ReadRequiredInt32(info, 6));
   const QB_ARG(nHeight, qb::ReadRequiredInt32(info, 7));
   const QB_ARG(hWndParent, qb::ReadOptionalHandle<HWND>(info, 8));
-  const QB_ARG(hMenu, qb::ReadOptionalHandleOrUintPtr(info, 9));
+  const QB_ARG(hMenu, qb::ReadOptionalPointerSized(info, 9));
   const QB_ARG(hInstance, qb::ReadOptionalHandle<HINSTANCE>(info, 10));
   const QB_ARG(lpParam, qb::ReadOptionalHandle<LPVOID>(info, 11));
 
@@ -120,6 +120,21 @@ Napi::Value User32::UpdateWindow(const Napi::CallbackInfo &info) {
   const QB_ARG(hWnd, qb::ReadRequiredHandle<HWND>(info, 0));
 
   const BOOL result = ::UpdateWindow(hWnd);
+
+  return Napi::Boolean::New(env, result);
+}
+
+Napi::Value User32::MoveWindow(const Napi::CallbackInfo &info) {
+  const Napi::Env env = info.Env();
+
+  const QB_ARG(hWnd, qb::ReadRequiredHandle<HWND>(info, 0));
+  const QB_ARG(X, qb::ReadRequiredInt32(info, 1));
+  const QB_ARG(Y, qb::ReadRequiredInt32(info, 2));
+  const QB_ARG(nWidth, qb::ReadRequiredInt32(info, 3));
+  const QB_ARG(nHeight, qb::ReadRequiredInt32(info, 4));
+  const QB_ARG(bRepaint, qb::ReadRequiredBoolean(info, 5));
+
+  const BOOL result = ::MoveWindow(hWnd, X, Y, nWidth, nHeight, bRepaint);
 
   return Napi::Boolean::New(env, result);
 }

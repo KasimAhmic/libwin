@@ -147,3 +147,17 @@ export type LPWORD = Nominal<bigint, 'LPWORD'>;
 
 export type PULONG_PTR = Nominal<bigint, 'PULONG_PTR'>;
 export type PUINT_PTR = Nominal<bigint, 'PUINT_PTR'>;
+
+export type WinMain = (
+  hInstance: HINSTANCE,
+  hPrevInstance: HINSTANCE | null,
+  lpCmdLine: LPSTR,
+  nShowCmd: INT,
+) => LRESULT;
+
+export type wWinMain = (
+  hInstance: HINSTANCE,
+  hPrevInstance: HINSTANCE | null,
+  lpCmdLine: LPWSTR,
+  nShowCmd: INT,
+) => LRESULT;

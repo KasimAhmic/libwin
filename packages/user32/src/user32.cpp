@@ -9,6 +9,7 @@ Napi::Object Initialize(const Napi::Env env, Napi::Object exports) {
   QB_EXPORT(User32::MessageBoxIndirectW);
   QB_EXPORT(User32::MessageBoxIndirectA);
   QB_EXPORT(User32::CreateMenu);
+  QB_EXPORT(User32::CreatePopupMenu);
   QB_EXPORT(User32::DestroyMenu);
   QB_EXPORT(User32::GetMenu);
   QB_EXPORT(User32::AppendMenuA);
@@ -21,6 +22,7 @@ Napi::Object Initialize(const Napi::Env env, Napi::Object exports) {
   QB_EXPORT(User32::DispatchMessageW);
   QB_EXPORT(User32::ShowWindow);
   QB_EXPORT(User32::UpdateWindow);
+  QB_EXPORT(User32::MoveWindow);
   QB_EXPORT(User32::DefWindowProcW);
   QB_EXPORT(User32::PostQuitMessage);
   QB_EXPORT(User32::LoadCursorW);

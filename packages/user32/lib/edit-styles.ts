@@ -1,0 +1,14 @@
+export const ES_LEFT = 0x0000;
+export const ES_CENTER = 0x0001;
+export const ES_RIGHT = 0x0002;
+export const ES_MULTILINE = 0x0004;
+export const ES_UPPERCASE = 0x0008;
+export const ES_LOWERCASE = 0x0010;
+export const ES_PASSWORD = 0x0020;
+export const ES_AUTOVSCROLL = 0x0040;
+export const ES_AUTOHSCROLL = 0x0080;
+export const ES_NOHIDESEL = 0x0100;
+export const ES_OEMCONVERT = 0x0400;
+export const ES_READONLY = 0x0800;
+export const ES_WANTRETURN = 0x1000;
+export const ES_NUMBER = 0x2000;

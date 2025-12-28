@@ -6,7 +6,7 @@ Napi::Value User32::GetClientRect(const Napi::CallbackInfo &info) {
   const QB_ARG(hWnd, qb::ReadRequiredHandle<HWND>(info, 0));
   const QB_ARG(lpRect, qb::ReadRequiredObject(info, 1));
 
-  auto rect = RECT{};
+  RECT rect{};
 
   const BOOL error = GetClientRect(hWnd, &rect);
 

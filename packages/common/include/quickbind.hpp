@@ -108,6 +108,12 @@ namespace qb {
                                   HKEY,
                                   HGDIOBJ>;
 
+  template <typename T>
+  concept WinString = qb::IsAnyOf<T, LPCSTR, LPSTR, const char *, char *>;
+
+  template <typename T>
+  concept WinWideString = qb::IsAnyOf<T, LPCWSTR, LPWSTR, const wchar_t *, wchar_t *>;
+
   namespace detail {
     consteval std::string_view UnqualifiedName(const std::string_view name) {
       const size_t pos = name.rfind("::");
@@ -118,6 +124,7 @@ namespace qb {
     inline constexpr std::string_view EXPECTED_NUMBER = "Expected a Number ";
     inline constexpr std::string_view EXPECTED_BIGINT_OR_NUMBER = "Expected a BigInt or Number ";
     inline constexpr std::string_view EXPECTED_STRING = "Expected a String ";
+    inline constexpr std::string_view EXPECTED_BOOLEAN = "Expected a Boolean ";
     inline constexpr std::string_view EXPECTED_OBJECT = "Expected an Object ";
     inline constexpr std::string_view EXPECTED_FUNCTION = "Expected a Function ";
     inline constexpr std::string_view EXPECTED_INT8_ARRAY = "Expected an Int8Array ";
@@ -313,6 +320,19 @@ namespace qb {
       return wideStringValue;
     };
 
+    [[nodiscard]] std::optional<bool> inline ReadBoolean(const Napi::Value &value,
+                                                         const qb::detail::Location &location,
+                                                         const bool required) {
+      QB_CHECK_NULLISH(value, required, qb::detail::EXPECTED_BOOLEAN, location);
+
+      if (!value.IsBoolean()) {
+        qb::detail::ThrowTypeError(value.Env(), qb::detail::EXPECTED_BOOLEAN, location);
+        return std::nullopt;
+      }
+
+      return value.As<Napi::Boolean>().Value();
+    };
+
     [[nodiscard]] std::optional<Napi::Object> inline ReadObject(const Napi::Value &value,
                                                                 const qb::detail::Location &location,
                                                                 const bool required) {
@@ -384,9 +404,9 @@ namespace qb {
       return handleValue;
     };
 
-    [[nodiscard]] std::optional<uintptr_t> inline ReadHandleOrUintPtr(const Napi::Value &value,
-                                                                      const qb::detail::Location &location,
-                                                                      const bool required) {
+    [[nodiscard]] std::optional<uintptr_t> inline ReadPointerSized(const Napi::Value &value,
+                                                                   const qb::detail::Location &location,
+                                                                   const bool required) {
       QB_CHECK_NULLISH(value, required, qb::detail::EXPECTED_BIGINT_OR_NUMBER, location);
 
       if (value.IsBigInt()) {
@@ -601,6 +621,24 @@ namespace qb {
     return qb::detail::ReadWideString(object.Get(key), qb::detail::Property(key), false);
   };
 
+  /**** Booleans *****************************************************************************************************/
+
+  [[nodiscard]] inline bool ReadRequiredBoolean(const Napi::CallbackInfo &info, const uint16_t index) {
+    return qb::detail::ReadBoolean(info[index], qb::detail::Argument(index), true).value_or(false);
+  };
+
+  [[nodiscard]] inline bool ReadRequiredBoolean(const Napi::Object &object, const std::string &key) {
+    return qb::detail::ReadBoolean(object.Get(key), qb::detail::Property(key), true).value_or(false);
+  };
+
+  [[nodiscard]] inline std::optional<bool> ReadOptionalBoolean(const Napi::CallbackInfo &info, const uint16_t index) {
+    return qb::detail::ReadBoolean(info[index], qb::detail::Argument(index), false);
+  };
+
+  [[nodiscard]] inline std::optional<bool> ReadOptionalBoolean(const Napi::Object &object, const std::string &key) {
+    return qb::detail::ReadBoolean(object.Get(key), qb::detail::Property(key), false);
+  };
+
   /**** Objects ******************************************************************************************************/
 
   [[nodiscard]] inline Napi::Object ReadRequiredObject(const Napi::CallbackInfo &info, const uint16_t index) {
@@ -665,22 +703,22 @@ namespace qb {
 
   /**** Handles that can also be resources IDs ***********************************************************************/
 
-  [[nodiscard]] inline uintptr_t ReadRequiredHandleOrUintPtr(const Napi::CallbackInfo &info, const uint16_t index) {
-    return qb::detail::ReadHandleOrUintPtr(info[index], qb::detail::Argument(index), true).value_or({});
+  [[nodiscard]] inline uintptr_t ReadRequiredPointerSized(const Napi::CallbackInfo &info, const uint16_t index) {
+    return qb::detail::ReadPointerSized(info[index], qb::detail::Argument(index), true).value_or({});
   };
 
-  [[nodiscard]] inline uintptr_t ReadRequiredHandleOrUintPtr(const Napi::Object &object, const std::string &key) {
-    return qb::detail::ReadHandleOrUintPtr(object.Get(key), qb::detail::Property(key), true).value_or({});
+  [[nodiscard]] inline uintptr_t ReadRequiredPointerSized(const Napi::Object &object, const std::string &key) {
+    return qb::detail::ReadPointerSized(object.Get(key), qb::detail::Property(key), true).value_or({});
   };
 
-  [[nodiscard]] inline std::optional<uintptr_t> ReadOptionalHandleOrUintPtr(const Napi::CallbackInfo &info,
-                                                                            const uint16_t index) {
-    return qb::detail::ReadHandleOrUintPtr(info[index], qb::detail::Argument(index), false);
+  [[nodiscard]] inline std::optional<uintptr_t> ReadOptionalPointerSized(const Napi::CallbackInfo &info,
+                                                                         const uint16_t index) {
+    return qb::detail::ReadPointerSized(info[index], qb::detail::Argument(index), false);
   };
 
-  [[nodiscard]] inline std::optional<uintptr_t> ReadOptionalHandleOrUintPtr(const Napi::Object &object,
-                                                                            const std::string &key) {
-    return qb::detail::ReadHandleOrUintPtr(object.Get(key), qb::detail::Property(key), false);
+  [[nodiscard]] inline std::optional<uintptr_t> ReadOptionalPointerSized(const Napi::Object &object,
+                                                                         const std::string &key) {
+    return qb::detail::ReadPointerSized(object.Get(key), qb::detail::Property(key), false);
   };
 
   /**** Signed 8-bit buffers *****************************************************************************************/
@@ -987,6 +1025,24 @@ namespace qb {
 
   template <qb::WinHandle T> inline Napi::BigInt HandleToBigInt(const Napi::CallbackInfo &info, const T &value) {
     return Napi::BigInt::New(info.Env(), reinterpret_cast<uintptr_t>(value));
+  }
+
+  template <qb::WinString T> inline Napi::String StringToString(const Napi::CallbackInfo &info, const T &value) {
+    if (!value) {
+      return Napi::String::New(info.Env(), "");
+    }
+
+    const size_t len = strlen(value);
+    return Napi::String::New(info.Env(), value, len);
+  }
+
+  template <qb::WinWideString T> inline Napi::String StringToString(const Napi::CallbackInfo &info, const T &value) {
+    if (!value) {
+      return Napi::String::New(info.Env(), "");
+    }
+
+    const size_t len = wcslen(value);
+    return Napi::String::New(info.Env(), reinterpret_cast<const char16_t *>(value), len);
   }
 }; // namespace qb
 
