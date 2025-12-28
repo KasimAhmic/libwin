@@ -23,7 +23,7 @@ import {
   FW_HEAVY,
   OUT_DEFAULT_PRECIS,
 } from '@libwin/gdi32';
-import { ActivateActCtx, CreateActCtxW, GetModuleHandleW } from '@libwin/kernel32';
+import { ActivateActCtx, CreateActCtxW, main } from '@libwin/kernel32';
 import {
   BN_CLICKED,
   COLOR_WINDOW,
@@ -59,7 +59,7 @@ import {
   WS_VISIBLE,
 } from '@libwin/user32';
 
-import { HandleError } from './util.js';
+import { HandleError } from '../utils/error.util.js';
 
 const IDC_OPEN_BUTTON = 1001;
 
@@ -133,7 +133,7 @@ function WndProc(windowHandle: HWND, message: UINT, wordParam: WPARAM, longParam
 
 function WinMain(
   instanceHandle: HINSTANCE,
-  _previousInstanceHandle: HINSTANCE,
+  _previousInstanceHandle: HINSTANCE | null,
   _commandLine: LPWSTR,
   showCmd: INT,
 ): LRESULT {
@@ -205,4 +205,4 @@ function WinMain(
   return 0n;
 }
 
-process.exitCode = Number(WinMain(GetModuleHandleW(null), 0n, '', 1));
+process.exitCode = main(WinMain);

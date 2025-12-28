@@ -2,7 +2,8 @@
   "name": "@libwin/demo",
   "type": "module",
   "scripts": {
-    "start:win32": "tsx win32/main.ts"
+    "win32": "tsx win32/main.ts",
+    "notepad": "tsx notepad/main.ts"
   },
   "dependencies": {
     "@libwin/common": "file:../packages/common/dist",
