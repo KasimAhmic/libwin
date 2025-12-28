@@ -116,6 +116,7 @@ namespace qb {
 
     inline constexpr std::string_view EXPECTED_BIGINT = "Expected a BigInt ";
     inline constexpr std::string_view EXPECTED_NUMBER = "Expected a Number ";
+    inline constexpr std::string_view EXPECTED_BIGINT_OR_NUMBER = "Expected a BigInt or Number ";
     inline constexpr std::string_view EXPECTED_STRING = "Expected a String ";
     inline constexpr std::string_view EXPECTED_OBJECT = "Expected an Object ";
     inline constexpr std::string_view EXPECTED_FUNCTION = "Expected a Function ";
@@ -383,6 +384,34 @@ namespace qb {
       return handleValue;
     };
 
+    [[nodiscard]] std::optional<uintptr_t> inline ReadHandleOrUintPtr(const Napi::Value &value,
+                                                                      const qb::detail::Location &location,
+                                                                      const bool required) {
+      QB_CHECK_NULLISH(value, required, qb::detail::EXPECTED_BIGINT_OR_NUMBER, location);
+
+      if (value.IsBigInt()) {
+        bool lossless = false;
+        const uint64_t uint64Value = value.As<Napi::BigInt>().Uint64Value(&lossless);
+
+        if (!lossless) {
+          qb::detail::ThrowTypeError(value.Env(), qb::detail::BIGINT_TOO_LARGE, location);
+          return std::nullopt;
+        }
+
+        return static_cast<uintptr_t>(uint64Value);
+      }
+
+      if (value.IsNumber()) {
+        const uint32_t uint32Value = value.As<Napi::Number>().Uint32Value();
+
+        return static_cast<uintptr_t>(uint32Value);
+      }
+
+      qb::detail::ThrowTypeError(value.Env(), qb::detail::EXPECTED_BIGINT_OR_NUMBER, location);
+
+      return std::nullopt;
+    };
+
   } // namespace detail
 
   /**** Unsigned 64-bit integers *************************************************************************************/
@@ -632,6 +661,26 @@ namespace qb {
   template <qb::WinHandle T>
   [[nodiscard]] inline std::optional<T> ReadOptionalHandle(const Napi::Object &object, const std::string &key) {
     return qb::detail::ReadHandle<T>(object.Get(key), qb::detail::Property(key), false);
+  };
+
+  /**** Handles that can also be resources IDs ***********************************************************************/
+
+  [[nodiscard]] inline uintptr_t ReadRequiredHandleOrUintPtr(const Napi::CallbackInfo &info, const uint16_t index) {
+    return qb::detail::ReadHandleOrUintPtr(info[index], qb::detail::Argument(index), true).value_or({});
+  };
+
+  [[nodiscard]] inline uintptr_t ReadRequiredHandleOrUintPtr(const Napi::Object &object, const std::string &key) {
+    return qb::detail::ReadHandleOrUintPtr(object.Get(key), qb::detail::Property(key), true).value_or({});
+  };
+
+  [[nodiscard]] inline std::optional<uintptr_t> ReadOptionalHandleOrUintPtr(const Napi::CallbackInfo &info,
+                                                                            const uint16_t index) {
+    return qb::detail::ReadHandleOrUintPtr(info[index], qb::detail::Argument(index), false);
+  };
+
+  [[nodiscard]] inline std::optional<uintptr_t> ReadOptionalHandleOrUintPtr(const Napi::Object &object,
+                                                                            const std::string &key) {
+    return qb::detail::ReadHandleOrUintPtr(object.Get(key), qb::detail::Property(key), false);
   };
 
   /**** Signed 8-bit buffers *****************************************************************************************/

@@ -1068,3 +1068,15 @@ export const OCM_CTLCOLORSTATIC = 0x2138;
 export const OCM_PARENTNOTIFY = 0x2200;
 export const WM_APP = 0x8000;
 export const WM_RASDIALEVENT = 0xcccd;
+
+export const BN_CLICKED = 0;
+export const BN_PAINT = 1;
+export const BN_HILITE = 2;
+export const BN_UNHILITE = 3;
+export const BN_DISABLE = 4;
+export const BN_DOUBLECLICKED = 5;
+export const BN_PUSHED = BN_HILITE;
+export const BN_UNPUSHED = BN_UNHILITE;
+export const BN_DBLCLK = BN_DOUBLECLICKED;
+export const BN_SETFOCUS = 6;
+export const BN_KILLFOCUS = 7;

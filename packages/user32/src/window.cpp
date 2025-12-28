@@ -9,7 +9,7 @@ static LRESULT CALLBACK WndProcThunk(HWND hWnd, UINT msg, WPARAM wParam, LPARAM 
     const auto windowHandle = Napi::BigInt::New(env, reinterpret_cast<uintptr_t>(hWnd));
     const auto message = Napi::Number::New(env, msg);
     const auto wordParam = Napi::BigInt::New(env, static_cast<uint64_t>(wParam));
-    const auto longParam = Napi::BigInt::New(env, static_cast<uint64_t>(lParam));
+    const auto longParam = Napi::BigInt::New(env, static_cast<int64_t>(lParam));
 
     const Napi::BigInt result = wndProcCallbackHandler->Invoke({windowHandle, message, wordParam, longParam});
 
@@ -30,7 +30,7 @@ Napi::Value User32::CreateWindowExW(const Napi::CallbackInfo &info) {
   const QB_ARG(nWidth, qb::ReadRequiredInt32(info, 6));
   const QB_ARG(nHeight, qb::ReadRequiredInt32(info, 7));
   const QB_ARG(hWndParent, qb::ReadOptionalHandle<HWND>(info, 8));
-  const QB_ARG(hMenu, qb::ReadOptionalHandle<HMENU>(info, 9));
+  const QB_ARG(hMenu, qb::ReadOptionalHandleOrUintPtr(info, 9));
   const QB_ARG(hInstance, qb::ReadOptionalHandle<HINSTANCE>(info, 10));
   const QB_ARG(lpParam, qb::ReadOptionalHandle<LPVOID>(info, 11));
 
@@ -43,7 +43,7 @@ Napi::Value User32::CreateWindowExW(const Napi::CallbackInfo &info) {
                                       nWidth,
                                       nHeight,
                                       hWndParent ? hWndParent.value() : nullptr,
-                                      hMenu ? hMenu.value() : nullptr,
+                                      hMenu ? reinterpret_cast<HMENU>(hMenu.value()) : nullptr,
                                       hInstance ? hInstance.value() : nullptr,
                                       lpParam ? lpParam.value() : nullptr);
 

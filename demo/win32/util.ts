@@ -9,7 +9,7 @@ import {
 } from '@libwin/kernel32';
 import { MAKELANGID, MB_ICONERROR, MB_OK, MessageBoxW } from '@libwin/user32';
 
-export function HandleError(context: string): number {
+export function HandleError(context: string): bigint {
   const errorCode = GetLastError();
   const errorMessage = new WideStringBuffer(128);
 
@@ -30,5 +30,5 @@ export function HandleError(context: string): number {
     MB_OK | MB_ICONERROR,
   );
 
-  return 1;
+  return 1n;
 }

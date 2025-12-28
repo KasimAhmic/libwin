@@ -2,6 +2,18 @@ import { join } from 'node:path';
 
 import { InitCommonControlsEx } from '@libwin/comctl32';
 import {
+  type HINSTANCE,
+  HIWORD,
+  type HWND,
+  type INT,
+  LOWORD,
+  type LPARAM,
+  type LPWSTR,
+  type LRESULT,
+  type UINT,
+  type WPARAM,
+} from '@libwin/common';
+import {
   CLIP_DEFAULT_PRECIS,
   CreateFontW,
   DEFAULT_CHARSET,
@@ -13,6 +25,7 @@ import {
 } from '@libwin/gdi32';
 import { ActivateActCtx, CreateActCtxW, GetModuleHandleW } from '@libwin/kernel32';
 import {
+  BN_CLICKED,
   COLOR_WINDOW,
   CS_VREDRAW,
   CW_USEDEFAULT,
@@ -22,12 +35,14 @@ import {
   GetMessageW,
   IDC_ARROW,
   LoadCursorW,
+  MessageBoxW,
   PostQuitMessage,
   RegisterClassExW,
   SendMessageW,
   ShowWindow,
   TranslateMessage,
   UpdateWindow,
+  WM_COMMAND,
   WM_CREATE,
   WM_DESTROY,
   WM_SETFONT,
@@ -46,10 +61,12 @@ import {
 
 import { HandleError } from './util.js';
 
+const IDC_OPEN_BUTTON = 1001;
+
 let hFont;
 let hButton;
 
-function WndProc(windowHandle: bigint, message: number, longParam: number, wordParam: number): bigint {
+function WndProc(windowHandle: HWND, message: UINT, wordParam: WPARAM, longParam: LPARAM): LRESULT {
   switch (message) {
     case WM_CREATE: {
       hFont = CreateFontW(
@@ -79,7 +96,7 @@ function WndProc(windowHandle: bigint, message: number, longParam: number, wordP
         100,
         30,
         windowHandle,
-        null,
+        IDC_OPEN_BUTTON,
         null,
         null,
       );
@@ -88,17 +105,38 @@ function WndProc(windowHandle: bigint, message: number, longParam: number, wordP
 
       return 0n;
     }
+
+    case WM_COMMAND: {
+      if (HIWORD(wordParam) === BN_CLICKED) {
+        switch (LOWORD(wordParam)) {
+          case IDC_OPEN_BUTTON: {
+            MessageBoxW(windowHandle, 'Button Clicked!', 'Info', 0);
+
+            return 0n;
+          }
+        }
+      }
+
+      return 0n;
+    }
+
     case WM_DESTROY: {
       PostQuitMessage(0);
 
       return 0n;
     }
+
     default:
-      return DefWindowProcW(windowHandle, message, longParam, wordParam);
+      return DefWindowProcW(windowHandle, message, wordParam, longParam);
   }
 }
 
-function WinMain(instanceHandle: number, showCmd: number): number {
+function WinMain(
+  instanceHandle: HINSTANCE,
+  _previousInstanceHandle: HINSTANCE,
+  _commandLine: LPWSTR,
+  showCmd: INT,
+): LRESULT {
   InitCommonControlsEx({
     dwSize: 8,
     dwICC: 0x00004000 | 0x00000004, // ICC_STANDARD_CLASSES | ICC_BAR_CLASSES
@@ -119,24 +157,26 @@ function WinMain(instanceHandle: number, showCmd: number): number {
     return HandleError('Failed to activate activation context ');
   }
 
-  console.log(cookie);
-
-  RegisterClassExW({
-    cbSize: 80,
-    style: CS_VREDRAW,
-    lpszClassName: 'LibNativeNotepad',
-    hInstance: instanceHandle,
-    hCursor: LoadCursorW(null, IDC_ARROW),
-    hbrBackground: COLOR_WINDOW,
-    cbClsExtra: 0,
-    cbWndExtra: 0,
-    lpfnWndProc: WndProc,
-  });
+  if (
+    !RegisterClassExW({
+      cbSize: 80,
+      style: CS_VREDRAW,
+      lpszClassName: 'LibWinExampleApp',
+      hInstance: instanceHandle,
+      hCursor: LoadCursorW(null, IDC_ARROW),
+      hbrBackground: COLOR_WINDOW,
+      cbClsExtra: 0,
+      cbWndExtra: 0,
+      lpfnWndProc: WndProc,
+    })
+  ) {
+    return HandleError('Failed to register class');
+  }
 
   const hWnd = CreateWindowExW(
     WS_EX_WINDOWEDGE | WS_EX_ACCEPTFILES,
-    'LibNativeNotepad',
-    'Untitled - Notepad',
+    'LibWinExampleApp',
+    'Example App using libwin',
     WS_MAXIMIZEBOX | WS_MINIMIZEBOX | WS_SIZEBOX | WS_SYSMENU | WS_DLGFRAME | WS_BORDER | WS_CLIPSIBLINGS | WS_VISIBLE,
     CW_USEDEFAULT,
     CW_USEDEFAULT,
@@ -144,7 +184,7 @@ function WinMain(instanceHandle: number, showCmd: number): number {
     300,
     null,
     null,
-    null,
+    instanceHandle,
     null,
   );
 
@@ -162,7 +202,7 @@ function WinMain(instanceHandle: number, showCmd: number): number {
     DispatchMessageW(msg);
   }
 
-  return 0;
+  return 0n;
 }
 
-process.exitCode = WinMain(GetModuleHandleW(null), 1);
+process.exitCode = Number(WinMain(GetModuleHandleW(null), 0n, '', 1));
