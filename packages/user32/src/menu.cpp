@@ -3,7 +3,7 @@
 Napi::Value User32::AppendMenuA(const Napi::CallbackInfo &info) {
   const QB_ARG(hMenu, qb::ReadRequiredHandle<HMENU>(info, 0));
   const QB_ARG(uFlags, qb::ReadRequiredUint32(info, 1));
-  const QB_ARG(uIDNewItem, qb::ReadRequiredUint32(info, 2));
+  const QB_ARG(uIDNewItem, qb::ReadRequiredUintPointer(info, 2));
   const QB_ARG(lpNewItem, qb::ReadOptionalString(info, 3));
 
   const BOOL result = ::AppendMenuA(hMenu, uFlags, uIDNewItem, lpNewItem.has_value() ? lpNewItem->c_str() : nullptr);
@@ -14,7 +14,7 @@ Napi::Value User32::AppendMenuA(const Napi::CallbackInfo &info) {
 Napi::Value User32::AppendMenuW(const Napi::CallbackInfo &info) {
   const QB_ARG(hMenu, qb::ReadRequiredHandle<HMENU>(info, 0));
   const QB_ARG(uFlags, qb::ReadRequiredUint32(info, 1));
-  const QB_ARG(uIDNewItem, qb::ReadRequiredPointerSized(info, 2));
+  const QB_ARG(uIDNewItem, qb::ReadRequiredUintPointer(info, 2));
   const QB_ARG(lpNewItem, qb::ReadOptionalWideString(info, 3));
 
   const BOOL result = ::AppendMenuW(hMenu, uFlags, uIDNewItem, lpNewItem.has_value() ? lpNewItem->c_str() : nullptr);

@@ -83,8 +83,8 @@ Napi::Value User32::SendMessageW(const Napi::CallbackInfo &info) {
 
   const QB_ARG(hWnd, qb::ReadRequiredHandle<HWND>(info, 0));
   const QB_ARG(msg, qb::ReadRequiredUint32(info, 1));
-  const QB_ARG(wParam, qb::ReadRequiredUint64(info, 2));
-  const QB_ARG(lParam, qb::ReadRequiredInt64(info, 3));
+  const QB_ARG(wParam, qb::ReadRequiredUintPointer(info, 2));
+  const QB_ARG(lParam, qb::ReadRequiredIntPointer(info, 3));
 
   const LRESULT result = ::SendMessageW(hWnd, msg, wParam, lParam);
 
@@ -96,8 +96,8 @@ Napi::Value User32::SendMessageA(const Napi::CallbackInfo &info) {
 
   const QB_ARG(hWnd, qb::ReadRequiredHandle<HWND>(info, 0));
   const QB_ARG(msg, qb::ReadRequiredUint32(info, 1));
-  const QB_ARG(wParam, qb::ReadRequiredUint64(info, 2));
-  const QB_ARG(lParam, qb::ReadRequiredInt64(info, 3));
+  const QB_ARG(wParam, qb::ReadRequiredUintPointer(info, 2));
+  const QB_ARG(lParam, qb::ReadRequiredIntPointer(info, 3));
 
   const LRESULT result = ::SendMessageA(hWnd, msg, wParam, lParam);
 

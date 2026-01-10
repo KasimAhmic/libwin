@@ -29,7 +29,7 @@
 #include <string_view>
 #include <type_traits>
 
-#include <minwindef.h>
+#include <windows.h>
 #include <napi.h>
 
 #define QB_THROW_IF_PENDING()                                                                                          \
@@ -57,6 +57,17 @@
     constexpr std::string_view name = qb::detail::UnqualifiedName(#function);                                          \
     exports.Set(Napi::String::New(env, name.data(), name.size()),                                                      \
                 Napi::Function::New(env, function, std::string(name)));                                                \
+  } while (0);
+
+#define QB_CHECK_ARG_LEN(expectedArgs)                                                                                 \
+  do {                                                                                                                 \
+    if (info.Length() != expectedArgs) {                                                                               \
+      Napi::Error::New(info.Env(),                                                                                     \
+                       std::string("Expected ") + std::to_string(expectedArgs) + " arguments but got " +               \
+                           std::to_string(info.Length()))                                                              \
+          .ThrowAsJavaScriptException();                                                                               \
+      return info.Env().Undefined();                                                                                   \
+    }                                                                                                                  \
   } while (0);
 
 #define QB_CHECK_NULLISH(value, required, prefix, location)                                                            \
@@ -120,9 +131,13 @@ namespace qb {
       return pos == std::string_view::npos ? name : name.substr(pos + 2);
     }
 
+    inline constexpr double MAX_SAFE_INTEGER = 9007199254740991.0;
+    inline constexpr double MIN_SAFE_INTEGER = -MAX_SAFE_INTEGER;
+
     inline constexpr std::string_view EXPECTED_BIGINT = "Expected a BigInt ";
     inline constexpr std::string_view EXPECTED_NUMBER = "Expected a Number ";
     inline constexpr std::string_view EXPECTED_BIGINT_OR_NUMBER = "Expected a BigInt or Number ";
+    inline constexpr std::string_view EXPECTED_BIGINT_NUMBER_STRING = "Expected a BigInt, Number, or StringBuffer ";
     inline constexpr std::string_view EXPECTED_STRING = "Expected a String ";
     inline constexpr std::string_view EXPECTED_BOOLEAN = "Expected a Boolean ";
     inline constexpr std::string_view EXPECTED_OBJECT = "Expected an Object ";
@@ -135,7 +150,8 @@ namespace qb {
     inline constexpr std::string_view EXPECTED_UINT16_ARRAY = "Expected a Uint16Array ";
     inline constexpr std::string_view EXPECTED_UINT32_ARRAY = "Expected a Uint32Array ";
     inline constexpr std::string_view EXPECTED_UINT64_ARRAY = "Expected a BigUint64Array ";
-    inline constexpr std::string_view BIGINT_TOO_LARGE = "BigInt is too large to fit in ";
+    inline constexpr std::string_view BIGINT_TOO_LARGE = "BigInt is too large ";
+    inline constexpr std::string_view NUMBER_NOT_VALID_INTEGER = "Number is not a valid integer ";
     inline constexpr std::string_view AT_INDEX = "at index ";
     inline constexpr std::string_view FOR_PROPERTY = "for property ";
 
@@ -154,6 +170,11 @@ namespace qb {
 
     inline void ThrowTypeError(Napi::Env env, std::string_view prefix, const qb::detail::Location &location) {
       Napi::TypeError::New(env, std::string(prefix) + location.in + location.where).ThrowAsJavaScriptException();
+    }
+
+    [[nodiscard]] bool inline IsSafeIntegerDouble(const double value) {
+      return (value <= qb::detail::MAX_SAFE_INTEGER) && (value >= qb::detail::MIN_SAFE_INTEGER) &&
+             (std::floor(value) == value) && std::isfinite(value);
     }
 
     [[nodiscard]] std::optional<uint64_t> inline ReadUint64(const Napi::Value &value,
@@ -404,10 +425,21 @@ namespace qb {
       return handleValue;
     };
 
-    [[nodiscard]] std::optional<uintptr_t> inline ReadPointerSized(const Napi::Value &value,
-                                                                   const qb::detail::Location &location,
-                                                                   const bool required) {
+    [[nodiscard]] std::optional<uintptr_t> inline ReadUintPointer(const Napi::Value &value,
+                                                                  const qb::detail::Location &location,
+                                                                  const bool required) {
       QB_CHECK_NULLISH(value, required, qb::detail::EXPECTED_BIGINT_OR_NUMBER, location);
+
+      if (value.IsNumber()) {
+        const double numberValue = value.As<Napi::Number>().DoubleValue();
+
+        if (!qb::detail::IsSafeIntegerDouble(numberValue) || numberValue < 0) {
+          qb::detail::ThrowTypeError(value.Env(), qb::detail::NUMBER_NOT_VALID_INTEGER, location);
+          return std::nullopt;
+        }
+
+        return static_cast<uintptr_t>(numberValue);
+      }
 
       if (value.IsBigInt()) {
         bool lossless = false;
@@ -421,17 +453,41 @@ namespace qb {
         return static_cast<uintptr_t>(uint64Value);
       }
 
-      if (value.IsNumber()) {
-        const uint32_t uint32Value = value.As<Napi::Number>().Uint32Value();
+      qb::detail::ThrowTypeError(value.Env(), qb::detail::EXPECTED_BIGINT_OR_NUMBER, location);
+      return std::nullopt;
+    }
 
-        return static_cast<uintptr_t>(uint32Value);
+    [[nodiscard]] std::optional<intptr_t> inline ReadIntPointer(const Napi::Value &value,
+                                                                const qb::detail::Location &location,
+                                                                const bool required) {
+      QB_CHECK_NULLISH(value, required, qb::detail::EXPECTED_BIGINT_OR_NUMBER, location);
+
+      if (value.IsNumber()) {
+        const double numberValue = value.As<Napi::Number>().DoubleValue();
+
+        if (!qb::detail::IsSafeIntegerDouble(numberValue)) {
+          qb::detail::ThrowTypeError(value.Env(), qb::detail::NUMBER_NOT_VALID_INTEGER, location);
+          return std::nullopt;
+        }
+
+        return static_cast<intptr_t>(numberValue);
+      }
+
+      if (value.IsBigInt()) {
+        bool lossless = false;
+        const int64_t int64Value = value.As<Napi::BigInt>().Int64Value(&lossless);
+
+        if (!lossless) {
+          qb::detail::ThrowTypeError(value.Env(), qb::detail::BIGINT_TOO_LARGE, location);
+          return std::nullopt;
+        }
+
+        return static_cast<intptr_t>(int64Value);
       }
 
       qb::detail::ThrowTypeError(value.Env(), qb::detail::EXPECTED_BIGINT_OR_NUMBER, location);
-
       return std::nullopt;
-    };
-
+    }
   } // namespace detail
 
   /**** Unsigned 64-bit integers *************************************************************************************/
@@ -701,24 +757,44 @@ namespace qb {
     return qb::detail::ReadHandle<T>(object.Get(key), qb::detail::Property(key), false);
   };
 
-  /**** Handles that can also be resources IDs ***********************************************************************/
+  /**** Unsigned Pointer Sized ***************************************************************************************/
 
-  [[nodiscard]] inline uintptr_t ReadRequiredPointerSized(const Napi::CallbackInfo &info, const uint16_t index) {
-    return qb::detail::ReadPointerSized(info[index], qb::detail::Argument(index), true).value_or({});
+  [[nodiscard]] inline uintptr_t ReadRequiredUintPointer(const Napi::CallbackInfo &info, const uint16_t index) {
+    return qb::detail::ReadUintPointer(info[index], qb::detail::Argument(index), true).value_or({});
   };
 
-  [[nodiscard]] inline uintptr_t ReadRequiredPointerSized(const Napi::Object &object, const std::string &key) {
-    return qb::detail::ReadPointerSized(object.Get(key), qb::detail::Property(key), true).value_or({});
+  [[nodiscard]] inline uintptr_t ReadRequiredUintPointer(const Napi::Object &object, const std::string &key) {
+    return qb::detail::ReadUintPointer(object.Get(key), qb::detail::Property(key), true).value_or({});
   };
 
-  [[nodiscard]] inline std::optional<uintptr_t> ReadOptionalPointerSized(const Napi::CallbackInfo &info,
-                                                                         const uint16_t index) {
-    return qb::detail::ReadPointerSized(info[index], qb::detail::Argument(index), false);
+  [[nodiscard]] inline std::optional<uintptr_t> ReadOptionalUintPointer(const Napi::CallbackInfo &info,
+                                                                        const uint16_t index) {
+    return qb::detail::ReadUintPointer(info[index], qb::detail::Argument(index), false);
   };
 
-  [[nodiscard]] inline std::optional<uintptr_t> ReadOptionalPointerSized(const Napi::Object &object,
-                                                                         const std::string &key) {
-    return qb::detail::ReadPointerSized(object.Get(key), qb::detail::Property(key), false);
+  [[nodiscard]] inline std::optional<uintptr_t> ReadOptionalUintPointer(const Napi::Object &object,
+                                                                        const std::string &key) {
+    return qb::detail::ReadUintPointer(object.Get(key), qb::detail::Property(key), false);
+  };
+
+  /**** Signed Pointer Sized *****************************************************************************************/
+
+  [[nodiscard]] inline intptr_t ReadRequiredIntPointer(const Napi::CallbackInfo &info, const uint16_t index) {
+    return qb::detail::ReadIntPointer(info[index], qb::detail::Argument(index), true).value_or({});
+  };
+
+  [[nodiscard]] inline intptr_t ReadRequiredIntPointer(const Napi::Object &object, const std::string &key) {
+    return qb::detail::ReadIntPointer(object.Get(key), qb::detail::Property(key), true).value_or({});
+  };
+
+  [[nodiscard]] inline std::optional<intptr_t> ReadOptionalIntPointer(const Napi::CallbackInfo &info,
+                                                                      const uint16_t index) {
+    return qb::detail::ReadIntPointer(info[index], qb::detail::Argument(index), false);
+  };
+
+  [[nodiscard]] inline std::optional<intptr_t> ReadOptionalIntPointer(const Napi::Object &object,
+                                                                      const std::string &key) {
+    return qb::detail::ReadIntPointer(object.Get(key), qb::detail::Property(key), false);
   };
 
   /**** Signed 8-bit buffers *****************************************************************************************/

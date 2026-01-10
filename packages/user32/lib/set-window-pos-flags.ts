@@ -1,0 +1,16 @@
+export const SWP_NONE = 0x0000;
+export const SWP_NOSIZE = 0x0001;
+export const SWP_NOMOVE = 0x0002;
+export const SWP_NOZORDER = 0x0004;
+export const SWP_NOREDRAW = 0x0008;
+export const SWP_NOACTIVATE = 0x0010;
+export const SWP_FRAMECHANGED = 0x0020;
+export const SWP_SHOWWINDOW = 0x0040;
+export const SWP_HIDEWINDOW = 0x0080;
+export const SWP_NOCOPYBITS = 0x0100;
+export const SWP_NOOWNERZORDER = 0x0200;
+export const SWP_NOSENDCHANGING = 0x0400;
+export const SWP_DRAWFRAME = SWP_FRAMECHANGED;
+export const SWP_NOREPOSITION = SWP_NOOWNERZORDER;
+export const SWP_DEFERERASE = 0x2000;
+export const SWP_ASYNCWINDOWPOS = 0x4000;

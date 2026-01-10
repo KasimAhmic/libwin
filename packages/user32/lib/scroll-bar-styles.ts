@@ -1,0 +1,10 @@
+export const SBS_HORZ = 0x0000;
+export const SBS_VERT = 0x0001;
+export const SBS_TOPALIGN = 0x0002;
+export const SBS_LEFTALIGN = 0x0002;
+export const SBS_BOTTOMALIGN = 0x0004;
+export const SBS_RIGHTALIGN = 0x0004;
+export const SBS_SIZEBOXTOPLEFTALIGN = 0x0002;
+export const SBS_SIZEBOXBOTTOMRIGHTALIGN = 0x0004;
+export const SBS_SIZEBOX = 0x0008;
+export const SBS_SIZEGRIP = 0x0010;

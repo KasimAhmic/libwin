@@ -8,6 +8,8 @@ export * from './message-box';
 export * from './message';
 export * from './edit-styles';
 export * from './menu-flags';
+export * from './scroll-bar-styles';
+export * from './set-window-pos-flags';
 
 export const CW_USEDEFAULT = 0x80000000;
 

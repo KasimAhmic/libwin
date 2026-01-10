@@ -2,14 +2,15 @@
   "name": "@libwin/common",
   "version": "1.0.0",
   "description": "Common utilities and types for libwin packages",
-  "type": "module",
   "main": "dist/index.js",
+  "type": "module",
+  "gypfile": true,
   "scripts": {
-    "configure": "exit 0",
-    "clean": "exit 0",
+    "configure": "node-gyp configure",
+    "clean": "node-gyp clean",
     "build:lib": "tsc -p ./tsconfig.json && rollup -c",
-    "build": "npm run build:lib",
-    "rebuild": "npm run build:lib",
+    "build": "node-gyp build -j max && npm run build:lib",
+    "rebuild": "node-gyp rebuild -j max && npm run build:lib",
     "test": "vitest"
   },
   "repository": {
