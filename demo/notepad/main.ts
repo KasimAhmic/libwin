@@ -19,6 +19,7 @@ import {
   COLOR_WINDOW,
   CS_VREDRAW,
   CW_USEDEFAULT,
+  CreateAcceleratorTableW,
   CreateWindowExW,
   DefWindowProcW,
   DispatchMessageW,
@@ -33,6 +34,7 @@ import {
   SendMessageW,
   SetWindowPos,
   ShowWindow,
+  TranslateAcceleratorW,
   TranslateMessage,
   UpdateWindow,
   WM_COMMAND,
@@ -52,7 +54,7 @@ import {
 } from '@libwin/user32';
 
 import { HandleError } from '../utils/error.util';
-import { CLASS_NAME, WINDOW_WIDTH } from './constants';
+import { ACCELERATORS, CLASS_NAME } from './constants';
 import { getStatusBarParts, handleCreate } from './create.handler';
 import { handleMenu } from './menu.handler';
 import { state } from './state';
@@ -124,6 +126,12 @@ function WinMain(
     return HandleError('Failed to activate activation context ');
   }
 
+  const acceleratorTable = CreateAcceleratorTableW(ACCELERATORS, ACCELERATORS.length);
+
+  if (!acceleratorTable) {
+    return HandleError('Failed to create accelerator table');
+  }
+
   if (
     !RegisterClassExW({
       cbSize: 80,
@@ -164,8 +172,10 @@ function WinMain(
   const msg = {};
 
   while (GetMessageW(msg, null, 0, 0)) {
-    TranslateMessage(msg);
-    DispatchMessageW(msg);
+    if (!TranslateAcceleratorW(hWnd, acceleratorTable, msg)) {
+      TranslateMessage(msg);
+      DispatchMessageW(msg);
+    }
   }
 
   return 0n;

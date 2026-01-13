@@ -141,6 +141,7 @@ namespace qb {
     inline constexpr std::string_view EXPECTED_STRING = "Expected a String ";
     inline constexpr std::string_view EXPECTED_BOOLEAN = "Expected a Boolean ";
     inline constexpr std::string_view EXPECTED_OBJECT = "Expected an Object ";
+    inline constexpr std::string_view EXPECTED_ARRAY = "Expected an Array ";
     inline constexpr std::string_view EXPECTED_FUNCTION = "Expected a Function ";
     inline constexpr std::string_view EXPECTED_INT8_ARRAY = "Expected an Int8Array ";
     inline constexpr std::string_view EXPECTED_INT16_ARRAY = "Expected an Int16Array ";
@@ -153,6 +154,7 @@ namespace qb {
     inline constexpr std::string_view BIGINT_TOO_LARGE = "BigInt is too large ";
     inline constexpr std::string_view NUMBER_NOT_VALID_INTEGER = "Number is not a valid integer ";
     inline constexpr std::string_view AT_INDEX = "at index ";
+    inline constexpr std::string_view IN_ARRAY_AT_INDEX = "in array at index ";
     inline constexpr std::string_view FOR_PROPERTY = "for property ";
 
     struct Location {
@@ -166,6 +168,11 @@ namespace qb {
 
     struct Property : qb::detail::Location {
       explicit Property(std::string_view key) : qb::detail::Location(FOR_PROPERTY, key) {}
+    };
+
+    struct ArrayIndex : qb::detail::Location {
+      explicit ArrayIndex(uint16_t index)
+          : qb::detail::Location(std::string(IN_ARRAY_AT_INDEX), std::to_string(index)) {}
     };
 
     inline void ThrowTypeError(Napi::Env env, std::string_view prefix, const qb::detail::Location &location) {
@@ -367,6 +374,21 @@ namespace qb {
       const Napi::Object objectValue = value.As<Napi::Object>();
 
       return objectValue;
+    }
+
+    [[nodiscard]] std::optional<Napi::Array> inline ReadArray(const Napi::Value &value,
+                                                              const qb::detail::Location &location,
+                                                              const bool required) {
+      QB_CHECK_NULLISH(value, required, qb::detail::EXPECTED_ARRAY, location);
+
+      if (!value.IsArray()) {
+        qb::detail::ThrowTypeError(value.Env(), qb::detail::EXPECTED_ARRAY, location);
+        return std::nullopt;
+      }
+
+      const Napi::Array arrayValue = value.As<Napi::Array>();
+
+      return arrayValue;
     }
 
     [[nodiscard]] std::optional<Napi::Function> inline ReadFunction(const Napi::Value &value,
@@ -705,6 +727,10 @@ namespace qb {
     return qb::detail::ReadObject(object.Get(key), qb::detail::Property(key), true).value_or({});
   };
 
+  [[nodiscard]] inline Napi::Object ReadRequiredObject(const Napi::Array &array, const uint32_t index) {
+    return qb::detail::ReadObject(array[index], qb::detail::ArrayIndex(index), true).value_or({});
+  };
+
   [[nodiscard]] inline std::optional<Napi::Object> ReadOptionalObject(const Napi::CallbackInfo &info,
                                                                       const uint16_t index) {
     return qb::detail::ReadObject(info[index], qb::detail::Argument(index), false);
@@ -713,6 +739,30 @@ namespace qb {
   [[nodiscard]] inline std::optional<Napi::Object> ReadOptionalObject(const Napi::Object &object,
                                                                       const std::string &key) {
     return qb::detail::ReadObject(object.Get(key), qb::detail::Property(key), false);
+  };
+
+  [[nodiscard]] inline std::optional<Napi::Object> ReadOptionalObject(const Napi::Array &array, const uint32_t index) {
+    return qb::detail::ReadObject(array[index], qb::detail::ArrayIndex(index), false);
+  };
+
+  /**** Arrays *******************************************************************************************************/
+
+  [[nodiscard]] inline Napi::Array ReadRequiredArray(const Napi::CallbackInfo &info, const uint16_t index) {
+    return qb::detail::ReadArray(info[index], qb::detail::Argument(index), true).value_or({});
+  };
+
+  [[nodiscard]] inline Napi::Array ReadRequiredArray(const Napi::Object &object, const std::string &key) {
+    return qb::detail::ReadArray(object.Get(key), qb::detail::Property(key), true).value_or({});
+  };
+
+  [[nodiscard]] inline std::optional<Napi::Array> ReadOptionalArray(const Napi::CallbackInfo &info,
+                                                                    const uint16_t index) {
+    return qb::detail::ReadArray(info[index], qb::detail::Argument(index), false);
+  };
+
+  [[nodiscard]] inline std::optional<Napi::Array> ReadOptionalArray(const Napi::Object &object,
+                                                                    const std::string &key) {
+    return qb::detail::ReadArray(object.Get(key), qb::detail::Property(key), false);
   };
 
   /**** Functions ****************************************************************************************************/

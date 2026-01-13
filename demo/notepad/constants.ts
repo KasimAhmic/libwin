@@ -1,3 +1,29 @@
+import {
+  type ACCEL,
+  FCONTROL,
+  FSHIFT,
+  FVIRTKEY,
+  VK_0,
+  VK_A,
+  VK_ADD,
+  VK_C,
+  VK_DELETE,
+  VK_F,
+  VK_F3,
+  VK_F5,
+  VK_G,
+  VK_H,
+  VK_N,
+  VK_NUMPAD0,
+  VK_O,
+  VK_P,
+  VK_S,
+  VK_SUBTRACT,
+  VK_V,
+  VK_X,
+  VK_Z,
+} from '@libwin/user32';
+
 // Class Names
 export const CLASS_NAME = 'LibWinNotepad';
 
@@ -54,3 +80,33 @@ export const STATUS_BAR_PART_SIZES: number[] = [140, 50, 120, 130];
 
 // Misc
 export const MAX_EDIT_LENGTH = 1024n * 1024n * 1024n;
+
+export const ACCELERATORS: ACCEL[] = [
+  // File
+  { fVirt: FVIRTKEY | FCONTROL, key: VK_N, cmd: FILE_MENU_NEW },
+  { fVirt: FVIRTKEY | FCONTROL | FSHIFT, key: VK_N, cmd: FILE_MENU_NEW_WINDOW },
+  { fVirt: FVIRTKEY | FCONTROL, key: VK_O, cmd: FILE_MENU_OPEN },
+  { fVirt: FVIRTKEY | FCONTROL, key: VK_S, cmd: FILE_MENU_SAVE },
+  { fVirt: FVIRTKEY | FCONTROL | FSHIFT, key: VK_S, cmd: FILE_MENU_SAVE_AS },
+  { fVirt: FVIRTKEY | FCONTROL, key: VK_P, cmd: FILE_MENU_PRINT },
+
+  // Edit
+  { fVirt: FVIRTKEY | FCONTROL, key: VK_Z, cmd: EDIT_MENU_UNDO },
+  { fVirt: FVIRTKEY | FCONTROL, key: VK_X, cmd: EDIT_MENU_CUT },
+  { fVirt: FVIRTKEY | FCONTROL, key: VK_C, cmd: EDIT_MENU_COPY },
+  { fVirt: FVIRTKEY | FCONTROL, key: VK_V, cmd: EDIT_MENU_PASTE },
+  { fVirt: FVIRTKEY, key: VK_DELETE, cmd: EDIT_MENU_DELETE },
+  { fVirt: FVIRTKEY | FCONTROL, key: VK_F, cmd: EDIT_MENU_FIND },
+  { fVirt: FVIRTKEY, key: VK_F3, cmd: EDIT_MENU_FIND_NEXT },
+  { fVirt: FVIRTKEY | FSHIFT, key: VK_F3, cmd: EDIT_MENU_FIND_PREVIOUS },
+  { fVirt: FVIRTKEY | FCONTROL, key: VK_H, cmd: EDIT_MENU_REPLACE },
+  { fVirt: FVIRTKEY | FCONTROL, key: VK_G, cmd: EDIT_MENU_GO_TO },
+  { fVirt: FVIRTKEY | FCONTROL, key: VK_A, cmd: EDIT_MENU_SELECT_ALL },
+  { fVirt: FVIRTKEY, key: VK_F5, cmd: EDIT_MENU_TIME_DATE },
+
+  // View
+  { fVirt: FVIRTKEY | FCONTROL, key: VK_ADD, cmd: VIEW_MENU_ZOOM_IN },
+  { fVirt: FVIRTKEY | FCONTROL, key: VK_SUBTRACT, cmd: VIEW_MENU_ZOOM_OUT },
+  { fVirt: FVIRTKEY | FCONTROL, key: VK_0, cmd: VIEW_MENU_RESTORE_DEFAULT_ZOOM },
+  { fVirt: FVIRTKEY | FCONTROL, key: VK_NUMPAD0, cmd: VIEW_MENU_RESTORE_DEFAULT_ZOOM },
+];

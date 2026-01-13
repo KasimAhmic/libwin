@@ -30,6 +30,10 @@ Napi::Object Initialize(const Napi::Env env, Napi::Object exports) {
   QB_EXPORT(User32::SendMessageW);
   QB_EXPORT(User32::SendMessageA);
   QB_EXPORT(User32::SetWindowPos);
+  QB_EXPORT(User32::CreateAcceleratorTableW);
+  QB_EXPORT(User32::CreateAcceleratorTableA);
+  QB_EXPORT(User32::TranslateAcceleratorW);
+  QB_EXPORT(User32::TranslateAcceleratorA);
 
   return exports;
 }
